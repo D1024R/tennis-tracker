@@ -127,6 +127,45 @@ textarea{resize:vertical;min-height:70px}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* Compare page */
+.compare-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:24px}
+.compare-pick-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--rl);padding:14px 16px;cursor:pointer;transition:all .15s;user-select:none;position:relative}
+.compare-pick-card:hover{border-color:var(--accent);background:var(--adim2)}
+.compare-pick-card.selected{border-color:var(--accent);background:var(--adim)}
+.compare-pick-card .pick-check{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);background:transparent;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s}
+.compare-pick-card.selected .pick-check{background:var(--accent);border-color:var(--accent);color:#0a0f0d}
+.pick-date{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px}
+.pick-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.pick-meta{display:flex;gap:6px;flex-wrap:wrap}
+
+/* Compare table */
+.cmp-wrap{overflow-x:auto;margin-bottom:20px}
+.cmp-table{width:100%;border-collapse:collapse;min-width:500px}
+.cmp-table th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+.cmp-table th.session-col{text-align:center;min-width:120px}
+.cmp-table td{padding:10px 14px;border-bottom:1px solid var(--border2);font-size:13px;vertical-align:middle}
+.cmp-table tr:last-child td{border-bottom:none}
+.cmp-table tr:hover td{background:var(--adim2)}
+.cmp-metric{color:var(--text2);font-size:12px}
+.cmp-val{text-align:center;font-weight:600;color:var(--text);font-size:14px;font-family:'DM Mono',monospace}
+.cmp-val.best{color:var(--accent)}
+.cmp-val.worst{color:var(--red)}
+.cmp-val.na{color:var(--text3);font-weight:400;font-size:12px}
+.cmp-section-hdr td{background:var(--surface2);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);padding:8px 14px;font-weight:500}
+.session-badge{display:flex;flex-direction:column;align-items:center;gap:3px}
+.session-badge .s-date{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
+.session-badge .s-type{font-size:9px}
+
+/* Bar compare */
+.bar-compare-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:20px}
+.bar-group{margin-bottom:10px}
+.bar-group-label{font-size:10px;color:var(--text2);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.bar-row-cmp{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.bar-session-label{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;width:60px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:7px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.bar-fill-cmp{height:100%;border-radius:4px;transition:width .5s ease}
+.bar-val-cmp{font-size:11px;font-family:'DM Mono',monospace;width:40px;text-align:right;color:var(--text2)}
 </style>
 </head>
 <body>
@@ -141,6 +180,7 @@ textarea{resize:vertical;min-height:70px}
     <div class="nav-item" data-page="sessions"><span class="nav-icon">&#9636;</span><span>Sessions</span></div>
     <div class="nav-item" data-page="trends"><span class="nav-icon">&#8599;</span><span>Trends</span></div>
     <div class="nav-item" data-page="opponents"><span class="nav-icon">&#9673;</span><span>Opponents</span></div>
+    <div class="nav-item" data-page="compare"><span class="nav-icon">&#8646;</span><span>Compare</span></div>
     <div class="sidebar-bottom">
       <button class="btn btn-primary btn-full" id="btnImport">+ Import FIT</button>
     </div>
@@ -374,7 +414,7 @@ function sc(label,value,valCls,cardCls,sub) {
 }
 
 // State
-var state = { page:'dashboard', sessions:DB.sessions(), opponents:DB.opponents(), parsedFit:null, selectedType:'', viewingSession:null, trendsFilter:'all' };
+var state = { page:'dashboard', sessions:DB.sessions(), opponents:DB.opponents(), parsedFit:null, selectedType:'', viewingSession:null, trendsFilter:'all', compareSelected:[] };
 
 // Canvas charts
 function drawChart(canvas, data, color) {
@@ -440,6 +480,7 @@ function renderPage() {
   if (state.page==='dashboard') content = renderDashboard();
   else if (state.page==='sessions') content = state.viewingSession ? renderDetail(state.viewingSession) : renderSessions();
   else if (state.page==='trends') content = renderTrends();
+  else if (state.page==='compare') content = renderCompare();
   else if (state.page==='opponents') content = renderOpponents();
   if (content) main.appendChild(content);
 }
@@ -621,6 +662,210 @@ function renderTrends() {
     setTimeout(function(cn,d,col){return function(){drawChart(cn,d,'rgb('+col+')');};}(canvas,c.data,c.color),100);
   });
   wrap.appendChild(grid);
+  return wrap;
+}
+
+function renderCompare() {
+  var wrap=mkEl('div','');
+  var sessions=state.sessions.slice().sort(function(a,b){return new Date(b.startTime||b.importedAt)-new Date(a.startTime||a.importedAt);});
+  var sel=state.compareSelected;
+
+  // Header
+  var hdr=mkEl('div','page-header','<div><div class="page-title">Compare <em>Sessions</em></div><div class="page-sub">Select up to 5 sessions to compare side by side</div></div>');
+  if(sel.length>=2){var btn=mkEl('button','btn btn-primary','View Comparison'); btn.onclick=function(){renderPage();}; hdr.appendChild(btn);}
+  wrap.appendChild(hdr);
+
+  if(!sessions.length){
+    var e=mkEl('div','empty','<div class="empty-icon">&#8646;</div><div class="empty-title">No sessions yet</div><div class="empty-sub">Import sessions to start comparing.</div>');
+    wrap.appendChild(e); return wrap;
+  }
+
+  // Session picker
+  var pickerLabel=mkEl('div','card-title','Select Sessions ('+sel.length+'/5 selected)');
+  wrap.appendChild(pickerLabel);
+  var picker=mkEl('div','compare-picker');
+  sessions.forEach(function(s){
+    var opp=state.opponents.filter(function(o){return o.id===s.opponentId;})[0];
+    var isSel=sel.indexOf(s.id)!==-1;
+    var won=s.whoWon&&s.whoWon.indexOf('WON')!==-1;
+    var card=mkEl('div','compare-pick-card'+(isSel?' selected':''));
+    card.innerHTML='<div class="pick-check">'+(isSel?'&#10003;':'')+'</div>'
+      +'<div class="pick-date">'+fmtDate(s.startTime)+' &middot; '+fmtTime(s.startTime)+'</div>'
+      +'<div class="pick-title">'+(s.matchScore?s.matchScore+' &middot; '+(won?'W':'L'):(opp?'vs '+opp.name:'Session'))+'</div>'
+      +'<div class="pick-meta"><span class="'+typeBadge(s.sessionType)+'">'+typeLabel(s.sessionType)+'</span><span class="badge badge-surface">'+(s.surface||'')+'</span>'+(opp?'<span class="tag">'+opp.name+'</span>':'')+'</div>';
+    card.onclick=function(){
+      var idx=sel.indexOf(s.id);
+      if(idx===-1){ if(sel.length>=5) return; sel.push(s.id); }
+      else { sel.splice(idx,1); }
+      state.compareSelected=sel;
+      renderPage();
+    };
+    picker.appendChild(card);
+  });
+  wrap.appendChild(picker);
+
+  if(sel.length<2){
+    var hint=mkEl('div','empty','<div class="empty-icon">&#128203;</div><div class="empty-title">Select at least 2 sessions</div><div class="empty-sub">Pick sessions above to see a side-by-side breakdown of every stat.</div>');
+    wrap.appendChild(hint); return wrap;
+  }
+
+  // Get selected session objects in order
+  var chosen=sel.map(function(id){return sessions.filter(function(s){return s.id===id;})[0];}).filter(Boolean);
+
+  // Session colour palette
+  var palette=['#3ddc6e','#5cb8ff','#f0a742','#ff7eb3','#b39dff'];
+
+  // Helper: get numeric value or null
+  function nv(s,key){ var v=s[key]; return (v!=null&&!isNaN(v))?+v:null; }
+
+  // Helper: format fraction
+  function frac(a,b){ return (a!=null&&b!=null&&b>0)?a+'/'+b:'--'; }
+
+  // Helper: find best/worst index for a metric (higherIsBetter flag)
+  function bestWorst(vals, higherIsBetter){
+    var valid=vals.map(function(v,i){return{v:v,i:i};}).filter(function(x){return x.v!=null;});
+    if(valid.length<2) return{best:-1,worst:-1};
+    valid.sort(function(a,b){return higherIsBetter?b.v-a.v:a.v-b.v;});
+    return{best:valid[0].i, worst:valid[valid.length-1].i};
+  }
+
+  // Build comparison table
+  function makeTable(title, rows) {
+    // rows: [{label, key, higherIsBetter, format, suffix}]
+    var card=mkEl('div','card mb-5');
+    card.innerHTML='<div class="card-title">'+title+'</div>';
+    var cw=mkEl('div','cmp-wrap');
+    var tbl=mkEl('table','cmp-table');
+
+    // Header row
+    var thead=mkEl('thead','');
+    var hr=mkEl('tr','');
+    hr.innerHTML='<th>Metric</th>';
+    chosen.forEach(function(s,i){
+      var opp=state.opponents.filter(function(o){return o.id===s.opponentId;})[0];
+      var won=s.whoWon&&s.whoWon.indexOf('WON')!==-1;
+      hr.innerHTML+='<th class="session-col"><div class="session-badge"><div class="s-date">'+fmtDate(s.startTime).split(' ').slice(0,2).join(' ')+'</div><div style="width:28px;height:3px;background:'+palette[i]+';border-radius:2px;margin:3px auto"></div><div class="s-type"><span class="'+typeBadge(s.sessionType)+'">'+typeLabel(s.sessionType).slice(0,4)+'</span>'+(s.matchScore?'<br><small style="color:'+(won?'var(--accent)':'var(--red)')+'">'+s.matchScore+'</small>':'')+'</div></div></th>';
+    });
+    thead.appendChild(hr); tbl.appendChild(thead);
+
+    var tbody=mkEl('tbody','');
+    rows.forEach(function(row){
+      if(row.section){
+        var sr=mkEl('tr','cmp-section-hdr');
+        sr.innerHTML='<td colspan="'+(chosen.length+1)+'">'+row.section+'</td>';
+        tbody.appendChild(sr); return;
+      }
+      var vals=chosen.map(function(s){
+        if(row.compute) return row.compute(s);
+        return nv(s,row.key);
+      });
+      var bw=bestWorst(vals, row.higherIsBetter!==false);
+      var tr=mkEl('tr','');
+      tr.innerHTML='<td class="cmp-metric">'+row.label+'</td>';
+      vals.forEach(function(v,i){
+        var display=v!=null?(row.format?row.format(v):v+(row.suffix||'')):'--';
+        var cls='cmp-val';
+        if(v==null) cls+=' na';
+        else if(i===bw.best) cls+=' best';
+        else if(i===bw.worst) cls+=' worst';
+        tr.innerHTML+='<td class="'+cls+'">'+display+'</td>';
+      });
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+    cw.appendChild(tbl); card.appendChild(cw);
+    return card;
+  }
+
+  // Shot power bar chart comparison
+  function makeShotBars(title, shotGroups) {
+    var card=mkEl('div','card mb-5');
+    card.innerHTML='<div class="card-title">'+title+'</div>';
+    var grid=mkEl('div','bar-compare-grid');
+    shotGroups.forEach(function(sg){
+      var maxVal=Math.max.apply(null,chosen.map(function(s){return nv(s,sg.key)||0;}).concat([1]));
+      var grp=mkEl('div','bar-group');
+      grp.innerHTML='<div class="bar-group-label">'+sg.label+'</div>';
+      chosen.forEach(function(s,i){
+        var v=nv(s,sg.key);
+        var row=mkEl('div','bar-row-cmp');
+        var shortDate=fmtDate(s.startTime).split(' ').slice(0,2).join(' ');
+        row.innerHTML='<div class="bar-session-label" style="color:'+palette[i]+'">'+shortDate+'</div>'
+          +'<div class="bar-track"><div class="bar-fill-cmp" style="width:'+((v!=null?v:0)/maxVal*100)+'%;background:'+palette[i]+'"></div></div>'
+          +'<div class="bar-val-cmp">'+(v!=null?v+(sg.suffix||''):'--')+'</div>';
+        grp.appendChild(row);
+      });
+      grid.appendChild(grp);
+    });
+    card.appendChild(grid);
+    return card;
+  }
+
+  // ── Fitness table ──
+  wrap.appendChild(makeTable('Fitness & Physical',[
+    {label:'Duration',key:'duration',higherIsBetter:true,format:fmtDur},
+    {label:'Avg Heart Rate',key:'avgHR',higherIsBetter:false,suffix:' bpm'},
+    {label:'Max Heart Rate',key:'maxHR',higherIsBetter:false,suffix:' bpm'},
+    {label:'Calories',key:'calories',higherIsBetter:true,suffix:' kcal'},
+    {label:'Distance',key:'distance',higherIsBetter:true,suffix:' km'},
+    {label:'Temperature',key:'temperature',suffix:'°C'},
+    {label:'Training Effect',key:'trainingEffect'}
+  ]));
+
+  // ── Shot count bars ──
+  wrap.appendChild(makeShotBars('Shot Counts',[
+    {label:'Total Shots',key:'totalCount'},
+    {label:'Forehand',key:'forehandCount'},
+    {label:'Backhand',key:'backhandCount'},
+    {label:'Serve',key:'serveCount'},
+    {label:'BH Slice',key:'bSliceCount'}
+  ]));
+
+  // ── Shot power bars ──
+  wrap.appendChild(makeShotBars('Shot Power — Avg %',[
+    {label:'Forehand Power Avg',key:'forehandPowerAvg',suffix:'%'},
+    {label:'Backhand Power Avg',key:'backhandPowerAvg',suffix:'%'},
+    {label:'Serve Power Avg',key:'servePowerAvg',suffix:'%'}
+  ]));
+
+  wrap.appendChild(makeShotBars('Shot Power — Max %',[
+    {label:'Forehand Power Max',key:'forehandPowerMax',suffix:'%'},
+    {label:'Backhand Power Max',key:'backhandPowerMax',suffix:'%'},
+    {label:'Serve Power Max',key:'servePowerMax',suffix:'%'}
+  ]));
+
+  // ── Shot ratio table ──
+  var hasAnyMatch=chosen.some(function(s){return s.pointsPlayed>0;});
+
+  wrap.appendChild(makeTable('Shot Distribution',[
+    {label:'Total Shots',key:'totalCount',higherIsBetter:true},
+    {label:'FH / BH Ratio',compute:function(s){ var f=nv(s,'forehandCount'),b=nv(s,'backhandCount'); return(f!=null&&b!=null&&b>0)?Math.round((f/b)*10)/10:null; },higherIsBetter:false,format:function(v){return v+'x';}},
+    {label:'Forehand Count',key:'forehandCount',higherIsBetter:true},
+    {label:'Backhand Count',key:'backhandCount',higherIsBetter:true},
+    {label:'Serve Count',key:'serveCount'},
+    {label:'BH Slice Count',key:'bSliceCount'}
+  ]));
+
+  // ── Match stats table (only if at least one session has match data) ──
+  if(hasAnyMatch){
+    wrap.appendChild(makeTable('Match Statistics',[
+      {label:'Points Played',key:'pointsPlayed'},
+      {label:'Points Won',key:'pointsWon',higherIsBetter:true},
+      {label:'Win %',compute:function(s){ var w=nv(s,'pointsWon'),t=nv(s,'pointsPlayed'); return(w!=null&&t!=null&&t>0)?Math.round(w/t*100):null; },higherIsBetter:true,suffix:'%'},
+      {label:'Winners',key:'winners',higherIsBetter:true},
+      {label:'Aces',key:'aces',higherIsBetter:true},
+      {label:'Unforced Errors',key:'unforcedErrors',higherIsBetter:false},
+      {label:'Forced Errors',key:'forcedErrors',higherIsBetter:false},
+      {label:'Double Faults',key:'doubleFaults',higherIsBetter:false},
+      {label:'Opponent Errors',key:'opponentErrors',higherIsBetter:true},
+      {label:'BP Won',compute:function(s){return frac(s.breakpointsWon,s.breakpointsWonOf);},higherIsBetter:null},
+      {label:'BP Conv %',compute:function(s){ var w=nv(s,'breakpointsWon'),t=nv(s,'breakpointsWonOf'); return(w!=null&&t!=null&&t>0)?Math.round(w/t*100):null; },higherIsBetter:true,suffix:'%'},
+      {label:'BP Saved',compute:function(s){return frac(s.breakpointsSaved,s.breakpointsSavedOf);},higherIsBetter:null},
+      {label:'Service Games Won',compute:function(s){return frac(s.serviceGamesWon,s.serviceGamesWonOf);},higherIsBetter:null},
+      {label:'Srv Games Win %',compute:function(s){ var w=nv(s,'serviceGamesWon'),t=nv(s,'serviceGamesWonOf'); return(w!=null&&t!=null&&t>0)?Math.round(w/t*100):null; },higherIsBetter:true,suffix:'%'}
+    ]));
+  }
+
   return wrap;
 }
 
