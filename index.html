@@ -705,6 +705,10 @@ function renderSessions(){
 }
 
 // ── SESSION DETAIL ────────────────────────────────────────────────────────────
+function lapStatsHTML(lap){
+  return'<div class="stats-grid">'+sc('Points Played',lap.pointsPlayed!=null?lap.pointsPlayed:'--','','','')+sc('Points Won',lap.pointsWon!=null?lap.pointsWon:'--','green','','')+sc('Points Lost',lap.pointsLost!=null?lap.pointsLost:'--','red','red','')+sc('Winners',lap.winners!=null?lap.winners:'--','green','','')+sc('Aces',lap.aces!=null?lap.aces:'--','','blue','')+sc('Unforced Errors',lap.unforcedErrors!=null?lap.unforcedErrors:'--','red','red','')+sc('Forced Errors',lap.forcedErrors!=null?lap.forcedErrors:'--','','amber','')+sc('Double Faults',lap.doubleFaults!=null?lap.doubleFaults:'--','red','red','')+sc('Opponent Errors',lap.opponentErrors!=null?lap.opponentErrors:'--','','','')+sc('BP Won',lap.breakpointsWonOf>0?lap.breakpointsWon+'/'+lap.breakpointsWonOf:'--','green','','')+sc('BP Saved',lap.breakpointsSavedOf>0?lap.breakpointsSaved+'/'+lap.breakpointsSavedOf:'--','','','')+sc('Service Games',lap.serviceGamesWonOf>0?lap.serviceGamesWon+'/'+lap.serviceGamesWonOf:'--','green','','')+'</div>';
+}
+
 function renderDetail(id){
   var s=state.sessions.filter(function(x){return x.id===id;})[0];
   if(!s){state.viewingSession=null;return renderSessions();}
@@ -790,11 +794,11 @@ function renderDetail(id){
       mergeBar.appendChild(mergeBtn);wrap.appendChild(mergeBar);
     }
 
-    function lapStatsHTML(lap){
-      return'<div class="stats-grid">'+sc('Points Played',lap.pointsPlayed!=null?lap.pointsPlayed:'--','','','')+sc('Points Won',lap.pointsWon!=null?lap.pointsWon:'--','green','','')+sc('Points Lost',lap.pointsLost!=null?lap.pointsLost:'--','red','red','')+sc('Winners',lap.winners!=null?lap.winners:'--','green','','')+sc('Aces',lap.aces!=null?lap.aces:'--','','blue','')+sc('Unforced Errors',lap.unforcedErrors!=null?lap.unforcedErrors:'--','red','red','')+sc('Forced Errors',lap.forcedErrors!=null?lap.forcedErrors:'--','','amber','')+sc('Double Faults',lap.doubleFaults!=null?lap.doubleFaults:'--','red','red','')+sc('Opponent Errors',lap.opponentErrors!=null?lap.opponentErrors:'--','','','')+sc('BP Won',lap.breakpointsWonOf>0?lap.breakpointsWon+'/'+lap.breakpointsWonOf:'--','green','','')+sc('BP Saved',lap.breakpointsSavedOf>0?lap.breakpointsSaved+'/'+lap.breakpointsSavedOf:'--','','','')+sc('Service Games',lap.serviceGamesWonOf>0?lap.serviceGamesWon+'/'+lap.serviceGamesWonOf:'--','green','','')+'</div>';
-    }
+  if(s.notes){var n=mkEl('div','card');n.innerHTML='<div class="card-title">Notes</div><div style="font-size:13px;color:var(--text2);line-height:1.6">'+s.notes+'</div>';wrap.appendChild(n);}
+  return wrap;
+}
 
-    if(isMerged){
+// ── TRENDS ────────────────────────────────────────────────────────────────────
       var ml=s._mergedLaps,mwon=ml.whoWon&&ml.whoWon.indexOf('WON')!==-1;
       var ms=mkEl('div','mb-5');
       var hd=mkEl('div','');hd.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)';
