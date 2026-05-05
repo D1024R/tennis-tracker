@@ -584,6 +584,7 @@ async function runAIAnalysis(parsedStats,allSessions,opponents){
 // ── AUTO-FLAGS ────────────────────────────────────────────────────────────────
 function getAutoFlags(s,allSessions){
   var flags=[];
+  if(!s||!allSessions)return flags;
   var prev=allSessions.filter(function(x){return x.id!==s.id&&x.unforcedErrors!=null;});
   if(prev.length<2)return flags;
   var avgUE=prev.reduce(function(a,x){return a+x.unforcedErrors;},0)/prev.length;
@@ -702,6 +703,8 @@ function renderSessions(){
 function renderDetail(id){
   var s=state.sessions.filter(function(x){return x.id===id;})[0];
   if(!s){state.viewingSession=null;return renderSessions();}
+  // Defensive: ensure matchLaps exists for sessions imported before this field was added
+  if(!s.matchLaps)s.matchLaps=[];
   var opp=state.opponents.filter(function(o){return o.id===s.opponentId;})[0];
   var won=s.whoWon&&s.whoWon.indexOf('WON')!==-1;
   var wrap=mkEl('div','');
