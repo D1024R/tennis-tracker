@@ -7,13 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-:root {
+:root{
   --bg:#0a0f0d;--surface:#111a15;--surface2:#162019;--border:#1e2e22;--border2:#243329;
   --accent:#3ddc6e;--accent2:#2bb558;--adim:rgba(61,220,110,0.12);--adim2:rgba(61,220,110,0.05);
   --text:#e8f0ea;--text2:#8fa896;--text3:#5a6e5f;
   --red:#ff5c5c;--rdim:rgba(255,92,92,0.12);
   --amber:#f0a742;--adimb:rgba(240,167,66,0.12);
   --blue:#5cb8ff;--bdim:rgba(92,184,255,0.12);
+  --purple:#b39dff;--pdim:rgba(179,157,255,0.12);
   --r:10px;--rl:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -45,10 +46,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:24px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;position:relative;overflow:hidden}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:.35}
-.stat-card.red::before{background:var(--red)}.stat-card.amber::before{background:var(--amber)}.stat-card.blue::before{background:var(--blue)}
+.stat-card.red::before{background:var(--red)}.stat-card.amber::before{background:var(--amber)}.stat-card.blue::before{background:var(--blue)}.stat-card.purple::before{background:var(--purple)}
 .stat-label{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
 .stat-value{font-size:24px;font-weight:600;color:var(--text);line-height:1}
-.stat-value.green{color:var(--accent)}.stat-value.red{color:var(--red)}.stat-value.amber{color:var(--amber)}.stat-value.blue{color:var(--blue)}
+.stat-value.green{color:var(--accent)}.stat-value.red{color:var(--red)}.stat-value.amber{color:var(--amber)}.stat-value.blue{color:var(--blue)}.stat-value.purple{color:var(--purple)}
 .stat-sub{font-size:10px;color:var(--text3);margin-top:3px}
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
@@ -78,28 +79,49 @@ textarea{resize:vertical;min-height:70px}
 .upload-icon{font-size:32px;margin-bottom:10px}
 .upload-title{font-size:14px;font-weight:500;margin-bottom:5px}
 .upload-sub{font-size:12px;color:var(--text3)}
-.type-opts{display:flex;gap:8px;flex-wrap:wrap}
-.type-opt{padding:7px 14px;border-radius:20px;border:1px solid var(--border2);cursor:pointer;font-size:12px;color:var(--text2);transition:all .15s;user-select:none}
-.type-opt:hover{border-color:var(--accent);color:var(--accent)}
-.type-opt.sel-comp{background:var(--adimb);color:var(--amber);border-color:var(--amber);font-weight:600}
-.type-opt.sel-friendly{background:var(--bdim);color:var(--blue);border-color:var(--blue);font-weight:600}
-.type-opt.sel-casual{background:rgba(90,110,95,.2);color:var(--text);border-color:var(--text3);font-weight:600}
+/* Selector buttons (session type, feel, weather) */
+.sel-opts{display:flex;gap:8px;flex-wrap:wrap}
+.sel-opt{padding:7px 14px;border-radius:20px;border:1px solid var(--border2);cursor:pointer;font-size:12px;color:var(--text2);transition:all .15s;user-select:none}
+.sel-opt:hover{border-color:var(--accent);color:var(--accent)}
+.sel-opt.active-comp{background:var(--adimb);color:var(--amber);border-color:var(--amber);font-weight:600}
+.sel-opt.active-friendly{background:var(--bdim);color:var(--blue);border-color:var(--blue);font-weight:600}
+.sel-opt.active-casual{background:rgba(90,110,95,.2);color:var(--text);border-color:var(--text3);font-weight:600}
+.sel-opt.active-feel{background:var(--adim);color:var(--accent);border-color:var(--accent);font-weight:600}
+.sel-opt.active-weather{background:var(--adimb);color:var(--amber);border-color:var(--amber);font-weight:600}
+.sel-opt.active-wind{background:var(--pdim);color:var(--purple);border-color:var(--purple);font-weight:600}
+/* Parsed preview */
 .parsed-preview{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-top:12px}
 .parsed-label{font-size:10px;color:var(--accent);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
 .parsed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
 .parsed-item{font-size:11px;color:var(--text2)}
 .parsed-item strong{display:block;font-size:15px;color:var(--text);font-weight:600;margin-bottom:1px}
+/* AI analysis */
+.ai-box{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rl);padding:20px;margin-top:16px}
+.ai-box-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.ai-body{font-size:13px;color:var(--text2);line-height:1.7}
+.ai-body strong{color:var(--text)}
+.ai-loading{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text3)}
+.ai-spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flag-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border2);font-size:12px;color:var(--text2)}
+.flag-item:last-child{border-bottom:none}
+.flag-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+/* Alert */
 .alert{padding:10px 14px;border-radius:var(--r);font-size:12px;margin-bottom:14px}
 .alert-warn{background:var(--adimb);color:var(--amber);border:1px solid rgba(240,167,66,.2)}
+.alert-info{background:var(--bdim);color:var(--blue);border:1px solid rgba(92,184,255,.2)}
+/* Modal */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:28px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:28px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
 .modal-title{font-family:'Instrument Serif',serif;font-size:22px;margin-bottom:4px}
 .modal-sub{font-size:12px;color:var(--text3);margin-bottom:22px}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;padding-top:16px;border-top:1px solid var(--border)}
+/* Tabs */
 .tabs{display:flex;gap:3px;background:var(--surface2);padding:4px;border-radius:var(--r);width:fit-content;margin-bottom:22px}
 .tab{padding:6px 14px;border-radius:7px;font-size:12px;cursor:pointer;color:var(--text2);transition:all .15s;font-weight:500;user-select:none}
 .tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .tab:hover:not(.active){color:var(--text)}
+/* Shot bars */
 .shot-bars{display:flex;flex-direction:column;gap:11px}
 .shot-row{display:flex;align-items:center;gap:10px}
 .shot-lbl{font-size:10px;color:var(--text2);width:90px;flex-shrink:0;font-family:'DM Mono',monospace}
@@ -107,8 +129,12 @@ textarea{resize:vertical;min-height:70px}
 .shot-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
 .shot-cnt{font-size:11px;color:var(--text3);width:26px;text-align:right;font-family:'DM Mono',monospace}
 .shot-pwr{font-size:10px;color:var(--text3);width:72px;text-align:right;font-family:'DM Mono',monospace}
+/* Two col */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px}
+/* Chart */
 .chart-wrap{position:relative;height:200px;margin-top:6px}
+/* Empty */
 .empty{text-align:center;padding:60px 20px;color:var(--text3)}
 .empty-icon{font-size:38px;margin-bottom:12px}
 .empty-title{font-size:16px;color:var(--text2);margin-bottom:6px;font-family:'Instrument Serif',serif}
@@ -118,28 +144,23 @@ textarea{resize:vertical;min-height:70px}
 .divider{height:1px;background:var(--border);margin:18px 0}
 .tag{display:inline-flex;align-items:center;padding:2px 8px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;font-size:10px;color:var(--text2);font-family:'DM Mono',monospace}
 .hidden{display:none!important}
+/* Opponents */
 .opp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .opp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:20px}
 .opp-name{font-family:'Instrument Serif',serif;font-size:18px;margin-bottom:4px}
 .opp-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;text-align:center}
 .opp-stat-n{font-size:22px;font-weight:600}
 .opp-stat-l{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.1em}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-
-/* Compare page */
+/* Compare */
 .compare-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:24px}
 .compare-pick-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--rl);padding:14px 16px;cursor:pointer;transition:all .15s;user-select:none;position:relative}
 .compare-pick-card:hover{border-color:var(--accent);background:var(--adim2)}
 .compare-pick-card.selected{border-color:var(--accent);background:var(--adim)}
-.compare-pick-card .pick-check{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);background:transparent;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s}
+.compare-pick-card .pick-check{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px}
 .compare-pick-card.selected .pick-check{background:var(--accent);border-color:var(--accent);color:#0a0f0d}
 .pick-date{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px}
 .pick-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
 .pick-meta{display:flex;gap:6px;flex-wrap:wrap}
-
-/* Compare table */
 .cmp-wrap{overflow-x:auto;margin-bottom:20px}
 .cmp-table{width:100%;border-collapse:collapse;min-width:500px}
 .cmp-table th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -149,15 +170,10 @@ textarea{resize:vertical;min-height:70px}
 .cmp-table tr:hover td{background:var(--adim2)}
 .cmp-metric{color:var(--text2);font-size:12px}
 .cmp-val{text-align:center;font-weight:600;color:var(--text);font-size:14px;font-family:'DM Mono',monospace}
-.cmp-val.best{color:var(--accent)}
-.cmp-val.worst{color:var(--red)}
-.cmp-val.na{color:var(--text3);font-weight:400;font-size:12px}
+.cmp-val.best{color:var(--accent)}.cmp-val.worst{color:var(--red)}.cmp-val.na{color:var(--text3);font-weight:400;font-size:12px}
 .cmp-section-hdr td{background:var(--surface2);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);padding:8px 14px;font-weight:500}
 .session-badge{display:flex;flex-direction:column;align-items:center;gap:3px}
 .session-badge .s-date{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
-.session-badge .s-type{font-size:9px}
-
-/* Bar compare */
 .bar-compare-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:20px}
 .bar-group{margin-bottom:10px}
 .bar-group-label{font-size:10px;color:var(--text2);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
@@ -166,6 +182,13 @@ textarea{resize:vertical;min-height:70px}
 .bar-track{flex:1;height:7px;background:var(--surface2);border-radius:4px;overflow:hidden}
 .bar-fill-cmp{height:100%;border-radius:4px;transition:width .5s ease}
 .bar-val-cmp{font-size:11px;font-family:'DM Mono',monospace;width:40px;text-align:right;color:var(--text2)}
+/* Feel & weather badges */
+.feel-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:600;font-family:'DM Mono',monospace}
+.feel-5{background:var(--adim);color:var(--accent)}.feel-4{background:rgba(61,220,110,0.07);color:var(--accent)}
+.feel-3{background:var(--adimb);color:var(--amber)}.feel-2{background:rgba(255,92,92,0.07);color:var(--red)}.feel-1{background:var(--rdim);color:var(--red)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
 </head>
 <body>
@@ -179,6 +202,7 @@ textarea{resize:vertical;min-height:70px}
     <div class="nav-item active" data-page="dashboard"><span class="nav-icon">&#9672;</span><span>Dashboard</span></div>
     <div class="nav-item" data-page="sessions"><span class="nav-icon">&#9636;</span><span>Sessions</span></div>
     <div class="nav-item" data-page="trends"><span class="nav-icon">&#8599;</span><span>Trends</span></div>
+    <div class="nav-item" data-page="serve"><span class="nav-icon">&#9654;</span><span>Serve Analysis</span></div>
     <div class="nav-item" data-page="opponents"><span class="nav-icon">&#9673;</span><span>Opponents</span></div>
     <div class="nav-item" data-page="compare"><span class="nav-icon">&#8646;</span><span>Compare</span></div>
     <div class="sidebar-bottom">
@@ -204,10 +228,10 @@ textarea{resize:vertical;min-height:70px}
     <div class="divider"></div>
     <div class="form-group">
       <label>Session Type *</label>
-      <div class="type-opts">
-        <div class="type-opt" data-type="competitive">&#127942; Competitive</div>
-        <div class="type-opt" data-type="friendly">&#127934; Friendly</div>
-        <div class="type-opt" data-type="casual">&#128172; Casual / Drills</div>
+      <div class="sel-opts" id="typeOpts">
+        <div class="sel-opt" data-val="competitive" data-group="type">&#127942; Competitive</div>
+        <div class="sel-opt" data-val="friendly" data-group="type">&#127934; Friendly</div>
+        <div class="sel-opt" data-val="casual" data-group="type">&#128172; Casual / Drills</div>
       </div>
     </div>
     <div class="form-row">
@@ -225,8 +249,43 @@ textarea{resize:vertical;min-height:70px}
       </div>
     </div>
     <div class="form-group">
+      <label>How did you feel? *</label>
+      <div class="sel-opts" id="feelOpts">
+        <div class="sel-opt" data-val="5" data-group="feel" title="Top of my game">&#128293; Peak</div>
+        <div class="sel-opt" data-val="4" data-group="feel" title="Playing well">&#129395; Good</div>
+        <div class="sel-opt" data-val="3" data-group="feel" title="Average day">&#128528; OK</div>
+        <div class="sel-opt" data-val="2" data-group="feel" title="Below par">&#128530; Off</div>
+        <div class="sel-opt" data-val="1" data-group="feel" title="Rough day">&#128549; Bad</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Temperature</label>
+        <div class="sel-opts" id="tempOpts">
+          <div class="sel-opt" data-val="hot" data-group="temp">&#9728; Hot</div>
+          <div class="sel-opt" data-val="warm" data-group="temp">&#127780; Warm</div>
+          <div class="sel-opt" data-val="cool" data-group="temp">&#127772; Cool</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Wind</label>
+        <div class="sel-opts" id="windOpts">
+          <div class="sel-opt" data-val="none" data-group="wind">&#128336; None</div>
+          <div class="sel-opt" data-val="light" data-group="wind">&#127811; Light</div>
+          <div class="sel-opt" data-val="medium" data-group="wind">&#127786; Medium</div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
       <label>Notes (optional)</label>
       <textarea id="sessionNotes" placeholder="Anything worth noting..."></textarea>
+    </div>
+    <!-- AI Analysis box shown after parse -->
+    <div id="aiAnalysisBox" class="hidden">
+      <div class="ai-box">
+        <div class="ai-box-title">&#10024; AI Analysis</div>
+        <div id="aiAnalysisContent" class="ai-loading"><div class="ai-spinner"></div><span>Analysing your session...</span></div>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="btnCancelUpload">Cancel</button>
@@ -263,58 +322,44 @@ textarea{resize:vertical;min-height:70px}
 </div>
 
 <script>
-(function() {
+(function(){
 'use strict';
 
-// Storage
-var DB = {
-  sessions: function() { try { return JSON.parse(localStorage.getItem('ci_sessions') || '[]'); } catch(e) { return []; } },
-  opponents: function() { try { return JSON.parse(localStorage.getItem('ci_opponents') || '[]'); } catch(e) { return []; } },
-  saveSessions: function(v) { try { localStorage.setItem('ci_sessions', JSON.stringify(v)); } catch(e) {} },
-  saveOpponents: function(v) { try { localStorage.setItem('ci_opponents', JSON.stringify(v)); } catch(e) {} }
+var DB={
+  sessions:function(){try{return JSON.parse(localStorage.getItem('ci_sessions')||'[]');}catch(e){return[];}},
+  opponents:function(){try{return JSON.parse(localStorage.getItem('ci_opponents')||'[]');}catch(e){return[];}},
+  saveSessions:function(v){try{localStorage.setItem('ci_sessions',JSON.stringify(v));}catch(e){}},
+  saveOpponents:function(v){try{localStorage.setItem('ci_opponents',JSON.stringify(v));}catch(e){}}
 };
 
-// FIT Parser - always advances by f.size, uses type only to interpret value
-function parseFitFile(buffer) {
-  var b = new Uint8Array(buffer);
-  var dv = new DataView(buffer);
-  var o = 0;
-  function r8() { return b[o++]; }
-  function r16(le) { var v=le?(b[o]|(b[o+1]<<8)):((b[o]<<8)|b[o+1]); o+=2; return v; }
-  function r32(le) { var v=le?(b[o]|(b[o+1]<<8)|(b[o+2]<<16)|(b[o+3]*16777216)):((b[o]*16777216)|(b[o+1]<<16)|(b[o+2]<<8)|b[o+3]); o+=4; return v; }
-
-  // Key fix: ALWAYS advance by size bytes. Use type only to interpret, never to determine byte count.
-  function readField(size, ftype, le) {
-    if (size===0) return null;
-    var start=o; o+=size;
-    if (start+size > b.length) return null;
-    try {
-      if (ftype===7) {
-        var s=''; for(var i=0;i<size;i++){var c=b[start+i];if(c&&c!==0)s+=String.fromCharCode(c);} return s.trim();
-      }
-      if (size===1) return b[start];
-      if (size===2) return le?(b[start]|(b[start+1]<<8)):((b[start]<<8)|b[start+1]);
-      if (size===4 && ftype===0x84) return dv.getFloat32(start, le);
-      if (size===4) return le?(b[start]|(b[start+1]<<8)|(b[start+2]<<16)|(b[start+3]*16777216)):((b[start]*16777216)|(b[start+1]<<16)|(b[start+2]<<8)|b[start+3]);
-      if (size===8 && ftype===0x85) return dv.getFloat64(start, le);
-    } catch(e) {}
+// ── FIT PARSER ────────────────────────────────────────────────────────────────
+function parseFitFile(buffer){
+  var b=new Uint8Array(buffer),dv=new DataView(buffer),o=0;
+  function r8(){return b[o++];}
+  function r16(le){var v=le?(b[o]|(b[o+1]<<8)):((b[o]<<8)|b[o+1]);o+=2;return v;}
+  function r32(le){var v=le?(b[o]|(b[o+1]<<8)|(b[o+2]<<16)|(b[o+3]*16777216)):((b[o]*16777216)|(b[o+1]<<16)|(b[o+2]<<8)|b[o+3]);o+=4;return v;}
+  function readField(size,ftype,le){
+    if(size===0)return null;
+    var start=o;o+=size;
+    if(start+size>b.length)return null;
+    try{
+      if(ftype===7){var s='';for(var i=0;i<size;i++){var c=b[start+i];if(c&&c!==0)s+=String.fromCharCode(c);}return s.trim();}
+      if(size===1)return b[start];
+      if(size===2)return le?(b[start]|(b[start+1]<<8)):((b[start]<<8)|b[start+1]);
+      if(size===4&&ftype===0x84)return dv.getFloat32(start,le);
+      if(size===4)return le?(b[start]|(b[start+1]<<8)|(b[start+2]<<16)|(b[start+3]*16777216)):((b[start]*16777216)|(b[start+1]<<16)|(b[start+2]<<8)|b[start+3]);
+      if(size===8&&ftype===0x85)return dv.getFloat64(start,le);
+    }catch(e){}
     return null;
   }
+  function readDevStr(size){var s='',start=o;o+=size;for(var i=0;i<size;i++){var c=b[start+i];if(c&&c!==0)s+=String.fromCharCode(c);}return s.trim();}
 
-  function readDevStr(size) {
-    var s='',start=o; o+=size;
-    for(var i=0;i<size;i++){var c=b[start+i];if(c&&c!==0)s+=String.fromCharCode(c);}
-    return s.trim();
-  }
+  var hSize=r8();r8();r16(true);r32(true);
+  var sig=String.fromCharCode(b[o],b[o+1],b[o+2],b[o+3]);o+=4;
+  if(sig!=='.FIT')return null;
+  if(hSize>12)o+=hSize-12;
 
-  var hSize=r8(); r8(); r16(true); r32(true);
-  var sig=String.fromCharCode(b[o],b[o+1],b[o+2],b[o+3]); o+=4;
-  if (sig!=='.FIT') return null;
-  if (hSize>12) o+=hSize-12;
-
-  var FIT_EPOCH=631065600000;
-  var defs={};
-  var endOff=hSize+dv.getUint32(4,true);
+  var FIT_EPOCH=631065600000,defs={},endOff=hSize+dv.getUint32(4,true);
   var stats={
     startTime:null,duration:null,avgHR:null,maxHR:null,calories:null,
     distance:null,temperature:null,trainingEffect:null,anaerobicEffect:null,
@@ -324,8 +369,8 @@ function parseFitFile(buffer) {
     serveCount:null,servePowerAvg:null,servePowerMax:null,
     bSliceCount:null,bSlicePowerAvg:null,bSlicePowerMax:null,
     fSliceCount:null,fSlicePowerAvg:null,fSlicePowerMax:null,
-    matchScore:null,whoWon:null,matchRules:null,
-    pointsPlayed:null,pointsWon:null,pointsLost:null,
+    matchLaps:[],
+    matchScore:null,whoWon:null,pointsPlayed:null,pointsWon:null,pointsLost:null,
     winners:null,aces:null,unforcedErrors:null,forcedErrors:null,
     doubleFaults:null,opponentErrors:null,matchPoints:null,
     breakpointsWon:null,breakpointsWonOf:null,
@@ -333,38 +378,37 @@ function parseFitFile(buffer) {
     serviceGamesWon:null,serviceGamesWonOf:null
   };
 
-  while (o<endOff-1 && o<b.length-1) {
+  while(o<endOff-1&&o<b.length-1){
     var hdr=r8();
-    if (hdr&0x80) continue;
-    var isDefn=(hdr&0x40)!==0, hasDev=(hdr&0x20)!==0, lNum=hdr&0x0F;
-
-    if (isDefn) {
-      r8(); var arch=r8(), le=(arch===0), gNum=r16(le), nF=r8(), fields=[];
-      for(var i=0;i<nF;i++) fields.push({num:r8(),size:r8(),type:r8()});
+    if(hdr&0x80)continue;
+    var isDefn=(hdr&0x40)!==0,hasDev=(hdr&0x20)!==0,lNum=hdr&0x0F;
+    if(isDefn){
+      r8();var arch=r8(),le=(arch===0),gNum=r16(le),nF=r8(),fields=[];
+      for(var i=0;i<nF;i++)fields.push({num:r8(),size:r8(),type:r8()});
       var devFields=[];
       if(hasDev){var nD=r8();for(var i=0;i<nD;i++)devFields.push({num:r8(),size:r8(),devIdx:r8()});}
       defs[lNum]={gNum:gNum,le:le,fields:fields,devFields:devFields};
-    } else {
-      var def=defs[lNum]; if(!def) continue;
-      var gNum=def.gNum, le=def.le, rec={};
-      for(var fi=0;fi<def.fields.length;fi++){var f=def.fields[fi]; rec[f.num]=readField(f.size,f.type,le);}
+    }else{
+      var def=defs[lNum];if(!def)continue;
+      var gNum=def.gNum,le=def.le,rec={};
+      for(var fi=0;fi<def.fields.length;fi++){var f=def.fields[fi];rec[f.num]=readField(f.size,f.type,le);}
       var devRec={};
-      for(var di=0;di<def.devFields.length;di++){var df=def.devFields[di]; devRec[df.num]=readDevStr(df.size);}
+      for(var di=0;di<def.devFields.length;di++){var df=def.devFields[di];devRec[df.num]=readDevStr(df.size);}
 
-      if (gNum===18) {
+      if(gNum===18){
         var ts=rec[2];
-        if(ts&&ts!==0xFFFFFFFF) stats.startTime=new Date(FIT_EPOCH+ts*1000).toISOString();
-        if(rec[7]) stats.duration=Math.round(rec[7]/1000);
-        if(rec[16]&&rec[16]!==0xFF) stats.avgHR=rec[16];
-        if(rec[17]&&rec[17]!==0xFF) stats.maxHR=rec[17];
-        if(rec[11]&&rec[11]!==0xFFFF) stats.calories=rec[11];
-        if(rec[9]) stats.distance=(rec[9]/100000).toFixed(2);
-        if(rec[58]&&rec[58]!==0x7F) stats.temperature=rec[58];
-        if(rec[24]) stats.trainingEffect=(rec[24]/10).toFixed(1);
-        if(rec[48]) stats.anaerobicEffect=(rec[48]/10).toFixed(1);
+        if(ts&&ts!==0xFFFFFFFF)stats.startTime=new Date(FIT_EPOCH+ts*1000).toISOString();
+        if(rec[7])stats.duration=Math.round(rec[7]/1000);
+        if(rec[16]&&rec[16]!==0xFF)stats.avgHR=rec[16];
+        if(rec[17]&&rec[17]!==0xFF)stats.maxHR=rec[17];
+        if(rec[11]&&rec[11]!==0xFFFF)stats.calories=rec[11];
+        if(rec[9])stats.distance=(rec[9]/100000).toFixed(2);
+        if(rec[58]&&rec[58]!==0x7F)stats.temperature=rec[58];
+        if(rec[24])stats.trainingEffect=(rec[24]/10).toFixed(1);
+        if(rec[48])stats.anaerobicEffect=(rec[48]/10).toFixed(1);
         for(var k in devRec){
           var n=parseInt(k),v=devRec[k];
-          if(!v||v==='-'||v.indexOf('-/')!==-1) continue;
+          if(!v||v==='-'||v.indexOf('-/')!==-1)continue;
           var hasSl=v.indexOf('/')!==-1;
           var pa=function(s){var p=s.split('/');return{a:parseInt(p[0].trim()),b:parseInt(p[1].trim())};};
           if(n===10||n===100){if(hasSl){var p=pa(v);stats.forehandPowerAvg=p.a;stats.forehandPowerMax=p.b;}else stats.forehandCount=parseInt(v)||null;}
@@ -372,203 +416,321 @@ function parseFitFile(buffer) {
           else if(n===12||n===120){if(hasSl){var p=pa(v);stats.servePowerAvg=p.a;stats.servePowerMax=p.b;}else stats.serveCount=parseInt(v)||null;}
           else if(n===13||n===130){if(hasSl){var p=pa(v);stats.bSlicePowerAvg=p.a;stats.bSlicePowerMax=p.b;}else stats.bSliceCount=parseInt(v)||null;}
           else if(n===14||n===140){if(hasSl){var p=pa(v);stats.fSlicePowerAvg=p.a;stats.fSlicePowerMax=p.b;}else stats.fSliceCount=parseInt(v)||null;}
-          else if(n===160) stats.totalCount=parseInt(v)||null;
+          else if(n===160)stats.totalCount=parseInt(v)||null;
         }
       }
 
-      if (gNum===19) {
+      if(gNum===19){
+        var lapData={},hasMatchData=false;
         for(var k in devRec){
           var n=parseInt(k),v=devRec[k];
-          if(!v||v.trim()==='-'||v.trim()==='') continue;
+          if(!v||v.trim()==='-'||v.trim()==='')continue;
+          hasMatchData=true;
           var psl=function(s){var p=s.split('/');return[parseInt(p[0].trim()),parseInt(p[1].trim())];};
-          if(n===50)stats.matchRules=v;
-          else if(n===51)stats.whoWon=v;
-          else if(n===52)stats.matchScore=v.trim();
-          else if(n===53)stats.pointsPlayed=parseInt(v)||null;
-          else if(n===54){var p=psl(v);stats.pointsWon=p[0];stats.pointsLost=p[1];}
-          else if(n===55)stats.winners=parseInt(v)||null;
-          else if(n===56)stats.aces=parseInt(v)||null;
-          else if(n===57)stats.unforcedErrors=parseInt(v)||null;
-          else if(n===58)stats.forcedErrors=parseInt(v)||null;
-          else if(n===59)stats.doubleFaults=parseInt(v)||null;
-          else if(n===60)stats.opponentErrors=parseInt(v)||null;
-          else if(n===61)stats.matchPoints=parseInt(v)||null;
-          else if(n===62){var p=psl(v);stats.breakpointsWon=p[0];stats.breakpointsWonOf=p[1];}
-          else if(n===63){var p=psl(v);stats.breakpointsSaved=p[0];stats.breakpointsSavedOf=p[1];}
-          else if(n===64){var p=psl(v);stats.serviceGamesWon=p[0];stats.serviceGamesWonOf=p[1];}
+          if(n===50)lapData.matchRules=v;
+          else if(n===51)lapData.whoWon=v;
+          else if(n===52)lapData.matchScore=v.trim();
+          else if(n===53)lapData.pointsPlayed=parseInt(v)||null;
+          else if(n===54){var p=psl(v);lapData.pointsWon=p[0];lapData.pointsLost=p[1];}
+          else if(n===55)lapData.winners=parseInt(v)||null;
+          else if(n===56)lapData.aces=parseInt(v)||null;
+          else if(n===57)lapData.unforcedErrors=parseInt(v)||null;
+          else if(n===58)lapData.forcedErrors=parseInt(v)||null;
+          else if(n===59)lapData.doubleFaults=parseInt(v)||null;
+          else if(n===60)lapData.opponentErrors=parseInt(v)||null;
+          else if(n===61)lapData.matchPoints=parseInt(v)||null;
+          else if(n===62){var p=psl(v);lapData.breakpointsWon=p[0];lapData.breakpointsWonOf=p[1];}
+          else if(n===63){var p=psl(v);lapData.breakpointsSaved=p[0];lapData.breakpointsSavedOf=p[1];}
+          else if(n===64){var p=psl(v);lapData.serviceGamesWon=p[0];lapData.serviceGamesWonOf=p[1];}
         }
+        if(hasMatchData)stats.matchLaps.push(lapData);
       }
     }
+  }
+  if(stats.matchLaps.length>0){
+    var primary=null;
+    for(var i=0;i<stats.matchLaps.length;i++){if(stats.matchLaps[i].whoWon&&stats.matchLaps[i].whoWon.indexOf('NOT FINISHED')===-1){primary=stats.matchLaps[i];break;}}
+    if(!primary)primary=stats.matchLaps[0];
+    var keys=['matchScore','whoWon','pointsPlayed','pointsWon','pointsLost','winners','aces','unforcedErrors','forcedErrors','doubleFaults','opponentErrors','matchPoints','breakpointsWon','breakpointsWonOf','breakpointsSaved','breakpointsSavedOf','serviceGamesWon','serviceGamesWonOf'];
+    for(var i=0;i<keys.length;i++){if(primary[keys[i]]!=null)stats[keys[i]]=primary[keys[i]];}
   }
   return stats;
 }
 
-// Helpers
-function fmtDate(iso) { return iso ? new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '--'; }
-function fmtTime(iso) { return iso ? new Date(iso).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : ''; }
-function fmtDur(s) { if(!s)return '--'; var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60; return h>0?h+'h '+m+'m':m+'m '+sc+'s'; }
-function typeLabel(t) { return {competitive:'Competitive',friendly:'Friendly',casual:'Casual Hit'}[t]||t||'--'; }
-function typeBadge(t) { return {competitive:'badge badge-competitive',friendly:'badge badge-friendly',casual:'badge badge-casual'}[t]||'badge'; }
-function sc(label,value,valCls,cardCls,sub) {
-  return '<div class="stat-card '+(cardCls||'')+'"><div class="stat-label">'+label+'</div><div class="stat-value '+(valCls||'')+'">'+value+'</div>'+(sub?'<div class="stat-sub">'+sub+'</div>':'')+'</div>';
-}
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function fmtDate(iso){return iso?new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'--';}
+function fmtTime(iso){return iso?new Date(iso).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'--';}
+function fmtDur(s){if(!s)return'--';var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;return h>0?h+'h '+m+'m':m+'m '+sc+'s';}
+function typeLabel(t){return{competitive:'Competitive',friendly:'Friendly',casual:'Casual Hit'}[t]||t||'--';}
+function typeBadge(t){return{competitive:'badge badge-competitive',friendly:'badge badge-friendly',casual:'badge badge-casual'}[t]||'badge';}
+function feelLabel(f){return{5:'&#128293; Peak',4:'&#129395; Good',3:'&#128528; OK',2:'&#128530; Off',1:'&#128549; Bad'}[f]||'';}
+function feelClass(f){return'feel-badge feel-'+f;}
+function tempLabel(t){return{hot:'&#9728; Hot',warm:'&#127780; Warm',cool:'&#127772; Cool'}[t]||'';}
+function windLabel(w){return{none:'No wind',light:'&#127811; Light wind',medium:'&#127786; Medium wind'}[w]||'';}
+function sc(label,value,valCls,cardCls,sub){return'<div class="stat-card '+(cardCls||'')+'"><div class="stat-label">'+label+'</div><div class="stat-value '+(valCls||'')+'">'+value+'</div>'+(sub?'<div class="stat-sub">'+sub+'</div>':'')+'</div>';}
+function mkEl(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html)e.innerHTML=html;return e;}
+function nv(s,key){var v=s[key];return(v!=null&&!isNaN(v))?+v:null;}
+function shotEff(s){var w=nv(s,'winners'),e=nv(s,'unforcedErrors');return(w!=null&&e!=null&&e>0)?Math.round((w/e)*100)/100:null;}
+function daysSince(iso){if(!iso)return null;return Math.floor((Date.now()-new Date(iso).getTime())/(86400000));}
 
-// State
-var state = { page:'dashboard', sessions:DB.sessions(), opponents:DB.opponents(), parsedFit:null, selectedType:'', viewingSession:null, trendsFilter:'all', compareSelected:[] };
-
-// Canvas charts
-function drawChart(canvas, data, color) {
-  var ctx = canvas.getContext('2d');
-  var W = canvas.parentElement ? canvas.parentElement.offsetWidth : 300;
-  var H = 180;
-  canvas.width = W; canvas.height = H;
+// ── CANVAS CHART ──────────────────────────────────────────────────────────────
+function drawChart(canvas,data,color,showRolling){
+  var ctx=canvas.getContext('2d');
+  var W=canvas.parentElement?canvas.parentElement.offsetWidth:300,H=180;
+  canvas.width=W;canvas.height=H;
   ctx.clearRect(0,0,W,H);
-  var valid = data.filter(function(d){return d.y!==null&&d.y!==undefined&&!isNaN(d.y);});
-  if (valid.length < 2) {
-    ctx.fillStyle='#5a6e5f'; ctx.font='12px DM Sans,sans-serif'; ctx.textAlign='center';
-    ctx.fillText('Need more sessions', W/2, H/2);
-    return;
-  }
+  var valid=data.filter(function(d){return d.y!==null&&d.y!==undefined&&!isNaN(d.y);});
+  if(valid.length<2){ctx.fillStyle='#5a6e5f';ctx.font='12px DM Sans,sans-serif';ctx.textAlign='center';ctx.fillText('Need more sessions',W/2,H/2);return;}
   var PAD={top:10,right:20,bottom:28,left:38};
-  var cW=W-PAD.left-PAD.right, cH=H-PAD.top-PAD.bottom;
-  var ys=valid.map(function(d){return d.y;}), minY=Math.min.apply(null,ys), maxY=Math.max.apply(null,ys);
+  var cW=W-PAD.left-PAD.right,cH=H-PAD.top-PAD.bottom;
+  var ys=valid.map(function(d){return d.y;}),minY=Math.min.apply(null,ys),maxY=Math.max.apply(null,ys);
   var rng=maxY-minY||1;
   function xS(i){return PAD.left+(i/(valid.length-1))*cW;}
   function yS(v){return PAD.top+cH-((v-minY)/rng)*cH;}
-  ctx.strokeStyle='#1e2e22'; ctx.lineWidth=1;
-  for(var i=0;i<=4;i++){
-    var y=PAD.top+(i/4)*cH;
-    ctx.beginPath();ctx.moveTo(PAD.left,y);ctx.lineTo(W-PAD.right,y);ctx.stroke();
-    ctx.fillStyle='#5a6e5f';ctx.font='9px DM Mono,monospace';ctx.textAlign='right';
-    ctx.fillText(Math.round(maxY-(i/4)*rng),PAD.left-5,y+3);
-  }
-  ctx.beginPath();
-  ctx.moveTo(xS(0),yS(valid[0].y));
-  for(var i=1;i<valid.length;i++) ctx.lineTo(xS(i),yS(valid[i].y));
-  ctx.lineTo(xS(valid.length-1),PAD.top+cH);
-  ctx.lineTo(PAD.left,PAD.top+cH);
-  ctx.closePath();
-  var grad=ctx.createLinearGradient(0,PAD.top,0,PAD.top+cH);
+  ctx.strokeStyle='#1e2e22';ctx.lineWidth=1;
+  for(var i=0;i<=4;i++){var y=PAD.top+(i/4)*cH;ctx.beginPath();ctx.moveTo(PAD.left,y);ctx.lineTo(W-PAD.right,y);ctx.stroke();ctx.fillStyle='#5a6e5f';ctx.font='9px DM Mono,monospace';ctx.textAlign='right';ctx.fillText(Math.round(maxY-(i/4)*rng),PAD.left-5,y+3);}
+  // Area fill
+  ctx.beginPath();ctx.moveTo(xS(0),yS(valid[0].y));
+  for(var i=1;i<valid.length;i++)ctx.lineTo(xS(i),yS(valid[i].y));
+  ctx.lineTo(xS(valid.length-1),PAD.top+cH);ctx.lineTo(PAD.left,PAD.top+cH);ctx.closePath();
   var rgb=color.replace(/[^\d,]/g,'').split(',');
+  var grad=ctx.createLinearGradient(0,PAD.top,0,PAD.top+cH);
   grad.addColorStop(0,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0.18)');
   grad.addColorStop(1,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0.02)');
-  ctx.fillStyle=grad; ctx.fill();
+  ctx.fillStyle=grad;ctx.fill();
+  // Line
   ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';
-  for(var i=0;i<valid.length;i++) i===0?ctx.moveTo(xS(i),yS(valid[i].y)):ctx.lineTo(xS(i),yS(valid[i].y));
+  for(var i=0;i<valid.length;i++)i===0?ctx.moveTo(xS(i),yS(valid[i].y)):ctx.lineTo(xS(i),yS(valid[i].y));
   ctx.stroke();
+  // Rolling average overlay (5-session)
+  if(showRolling&&valid.length>=3){
+    var win=Math.min(5,Math.floor(valid.length/2));
+    var rolling=[];
+    for(var i=0;i<valid.length;i++){
+      var s=Math.max(0,i-win+1),sum=0;
+      for(var j=s;j<=i;j++)sum+=valid[j].y;
+      rolling.push(sum/(i-s+1));
+    }
+    ctx.beginPath();ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+    for(var i=0;i<rolling.length;i++)i===0?ctx.moveTo(xS(i),yS(rolling[i])):ctx.lineTo(xS(i),yS(rolling[i]));
+    ctx.stroke();ctx.setLineDash([]);
+  }
+  // Dots & labels
   valid.forEach(function(d,i){
     ctx.beginPath();ctx.arc(xS(i),yS(d.y),3,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
-    if(i===0||i===valid.length-1||valid.length<=8||i%Math.ceil(valid.length/6)===0){
-      ctx.fillStyle='#5a6e5f';ctx.font='9px DM Mono,monospace';ctx.textAlign='center';
-      ctx.fillText(d.label,xS(i),H-4);
-    }
+    if(i===0||i===valid.length-1||valid.length<=8||i%Math.ceil(valid.length/6)===0){ctx.fillStyle='#5a6e5f';ctx.font='9px DM Mono,monospace';ctx.textAlign='center';ctx.fillText(d.label,xS(i),H-4);}
   });
 }
-
-// Render
-function setPage(page, viewingSession) {
-  state.page = page;
-  if (viewingSession !== undefined) state.viewingSession = viewingSession || null;
-  renderPage();
+function makeChart(title,data,color,showRolling){
+  var card=mkEl('div','card mb-4');
+  card.innerHTML='<div class="card-title">'+title+(showRolling?'<span style="margin-left:8px;font-size:8px;color:var(--text3)">— rolling avg</span>':'')+'</div>';
+  var cw=mkEl('div','chart-wrap');var canvas=document.createElement('canvas');
+  canvas.style.display='block';canvas.style.width='100%';cw.appendChild(canvas);card.appendChild(cw);
+  setTimeout(function(){drawChart(canvas,data,color,showRolling);},80);
+  return card;
 }
 
-function renderPage() {
-  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.toggle('active',n.dataset.page===state.page); });
-  var main = document.getElementById('mainContent');
-  main.innerHTML = '';
+// ── AI ANALYSIS ───────────────────────────────────────────────────────────────
+async function runAIAnalysis(parsedStats,allSessions,opponents){
+  var avgUE=0,avgW=0,avgDF=0,count=0;
+  allSessions.forEach(function(s){if(s.unforcedErrors!=null){avgUE+=s.unforcedErrors;count++;}if(s.winners!=null)avgW+=s.winners;if(s.doubleFaults!=null)avgDF+=s.doubleFaults;});
+  if(count>0){avgUE=Math.round(avgUE/count);avgW=Math.round(avgW/count);avgDF=Math.round(avgDF/count);}
+
+  var contextLines=['Session: '+fmtDate(parsedStats.startTime)+', '+fmtDur(parsedStats.duration)];
+  if(parsedStats.matchScore)contextLines.push('Score: '+parsedStats.matchScore+' ('+parsedStats.whoWon+')');
+  contextLines.push('Total shots: '+(parsedStats.totalCount||'?'));
+  contextLines.push('Forehand: '+(parsedStats.forehandCount||'?')+' shots, avg power '+(parsedStats.forehandPowerAvg||'?')+'%');
+  contextLines.push('Backhand: '+(parsedStats.backhandCount||'?')+' shots, avg power '+(parsedStats.backhandPowerAvg||'?')+'%');
+  contextLines.push('Serve: '+(parsedStats.serveCount||'?')+' shots, avg power '+(parsedStats.servePowerAvg||'?')+'%');
+  contextLines.push('BH Slice: '+(parsedStats.bSliceCount||0));
+  if(parsedStats.pointsPlayed){
+    contextLines.push('Points played: '+parsedStats.pointsPlayed+', won: '+parsedStats.pointsWon+', lost: '+parsedStats.pointsLost);
+    contextLines.push('Winners: '+parsedStats.winners+', Aces: '+parsedStats.aces);
+    contextLines.push('Unforced errors: '+parsedStats.unforcedErrors+', Forced errors: '+parsedStats.forcedErrors);
+    contextLines.push('Double faults: '+parsedStats.doubleFaults);
+    contextLines.push('Opponent errors: '+parsedStats.opponentErrors);
+    if(parsedStats.breakpointsWonOf>0)contextLines.push('Break points: '+parsedStats.breakpointsWon+'/'+parsedStats.breakpointsWonOf+' converted');
+    if(parsedStats.serviceGamesWonOf>0)contextLines.push('Service games: '+parsedStats.serviceGamesWon+'/'+parsedStats.serviceGamesWonOf+' won');
+  }
+  if(count>0)contextLines.push('Historical averages ('+count+' sessions): UE='+avgUE+', Winners='+avgW+', DFs='+avgDF);
+  contextLines.push('FH/BH ratio: '+((parsedStats.forehandCount&&parsedStats.backhandCount)?Math.round((parsedStats.forehandCount/parsedStats.backhandCount)*10)/10:'?')+':1');
+  contextLines.push('Avg HR: '+(parsedStats.avgHR||'?')+' bpm, Calories: '+(parsedStats.calories||'?'));
+
+  var prompt='You are a tennis coach reviewing a player\'s session data from their Garmin watch (Tennis AI app). Give a concise, direct analysis in 3-5 bullet points. Lead with the most interesting or actionable insight. Be specific about the numbers. Flag anything that stands out vs their historical averages where available. Mention the FH/BH ratio if it looks imbalanced. Keep it under 200 words total. Use plain text, no markdown headers.\n\nSession data:\n'+contextLines.join('\n');
+
+  try{
+    var response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:'You are a direct, knowledgeable tennis coach giving post-session feedback. Be concise and specific. No fluff.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var data=await response.json();
+    var text='';
+    if(data.content&&data.content.length>0){
+      data.content.forEach(function(block){if(block.type==='text')text+=block.text;});
+    }
+    if(!text)text='Analysis unavailable — check API connectivity.';
+    return text;
+  }catch(e){
+    return'Could not connect to AI analysis. Your session data has been saved successfully.';
+  }
+}
+
+// ── AUTO-FLAGS ────────────────────────────────────────────────────────────────
+function getAutoFlags(s,allSessions){
+  var flags=[];
+  var prev=allSessions.filter(function(x){return x.id!==s.id&&x.unforcedErrors!=null;});
+  if(prev.length<2)return flags;
+  var avgUE=prev.reduce(function(a,x){return a+x.unforcedErrors;},0)/prev.length;
+  var avgDF=prev.reduce(function(a,x){return a+(x.doubleFaults||0);},0)/prev.length;
+  var avgW=prev.reduce(function(a,x){return a+(x.winners||0);},0)/prev.length;
+  var avgFH=prev.filter(function(x){return x.forehandCount;}).reduce(function(a,x){return a+x.forehandCount;},0)/prev.filter(function(x){return x.forehandCount;}).length||0;
+  var avgBH=prev.filter(function(x){return x.backhandCount;}).reduce(function(a,x){return a+x.backhandCount;},0)/prev.filter(function(x){return x.backhandCount;}).length||0;
+
+  if(s.doubleFaults!=null&&avgDF>0&&s.doubleFaults>=avgDF*1.5)flags.push({icon:'&#9888;',text:'Double faults ('+s.doubleFaults+') are '+Math.round(s.doubleFaults/avgDF*100-100)+'% above your average ('+Math.round(avgDF)+')'});
+  if(s.unforcedErrors!=null&&s.unforcedErrors>=avgUE*1.4)flags.push({icon:'&#128308;',text:'Unforced errors ('+s.unforcedErrors+') significantly above your average of '+Math.round(avgUE)});
+  if(s.winners!=null&&avgW>0&&s.winners<=avgW*0.6)flags.push({icon:'&#128308;',text:'Winners ('+s.winners+') well below your average of '+Math.round(avgW)});
+  if(s.winners!=null&&avgW>0&&s.winners>=avgW*1.5)flags.push({icon:'&#128994;',text:'Strong winner count ('+s.winners+') — '+Math.round(s.winners/avgW*100-100)+'% above average'});
+  if(s.forehandCount&&s.backhandCount&&s.backhandCount>0){
+    var ratio=s.forehandCount/s.backhandCount;
+    if(ratio>3.5)flags.push({icon:'&#128308;',text:'FH/BH ratio of '+Math.round(ratio*10)/10+':1 is very high — backhand underused'});
+  }
+  return flags;
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+var state={
+  page:'dashboard',sessions:DB.sessions(),opponents:DB.opponents(),
+  parsedFit:null,selectedType:'',selectedFeel:'',selectedTemp:'',selectedWind:'',
+  viewingSession:null,trendsFilter:'all',trendsRolling:true,
+  compareSelected:[],viewingOpp:null
+};
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function setPage(page,viewingSession){state.page=page;if(viewingSession!==undefined)state.viewingSession=viewingSession||null;renderPage();}
+function renderPage(){
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===state.page);});
+  var main=document.getElementById('mainContent');main.innerHTML='';
   var content;
-  if (state.page==='dashboard') content = renderDashboard();
-  else if (state.page==='sessions') content = state.viewingSession ? renderDetail(state.viewingSession) : renderSessions();
-  else if (state.page==='trends') content = renderTrends();
-  else if (state.page==='compare') content = renderCompare();
-  else if (state.page==='opponents') content = renderOpponents();
-  if (content) main.appendChild(content);
+  if(state.page==='dashboard')content=renderDashboard();
+  else if(state.page==='sessions')content=state.viewingSession?renderDetail(state.viewingSession):renderSessions();
+  else if(state.page==='trends')content=renderTrends();
+  else if(state.page==='serve')content=renderServe();
+  else if(state.page==='opponents')content=renderOpponents();
+  else if(state.page==='compare')content=renderCompare();
+  if(content)main.appendChild(content);
 }
 
-function mkEl(tag,cls,html) {
-  var e=document.createElement(tag);
-  if(cls)e.className=cls;
-  if(html)e.innerHTML=html;
-  return e;
-}
-
-function renderDashboard() {
-  var s=state.sessions, withMatch=s.filter(function(x){return x.pointsPlayed>0;});
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDashboard(){
+  var s=state.sessions,wrap=mkEl('div','');
+  var withMatch=s.filter(function(x){return x.pointsPlayed>0;});
   var wins=s.filter(function(x){return x.whoWon&&x.whoWon.indexOf('WON')!==-1;}).length;
-  var losses=s.filter(function(x){return x.whoWon&&x.whoWon.indexOf('WON')===-1;}).length;
+  var losses=s.filter(function(x){return x.whoWon&&x.whoWon.indexOf('WON')===-1&&x.whoWon.trim()!=='';}).length;
   var totalShots=s.reduce(function(a,x){return a+(x.totalCount||0);},0);
   var avgE=withMatch.length?Math.round(withMatch.reduce(function(a,x){return a+(x.unforcedErrors||0);},0)/withMatch.length):null;
   var avgW=withMatch.length?Math.round(withMatch.reduce(function(a,x){return a+(x.winners||0);},0)/withMatch.length):null;
+  var allEff=s.filter(function(x){return shotEff(x)!=null;});
+  var avgEff=allEff.length?Math.round(allEff.reduce(function(a,x){return a+shotEff(x);},0)/allEff.length*100)/100:null;
 
-  var wrap=mkEl('div','');
-  var hdr=mkEl('div','page-header','<div><div class="page-title">Good to see you,<br><em>let\'s review your game</em></div><div class="page-sub">'+s.length+' session'+(s.length!==1?'s':'')+' recorded</div></div>');
-  var btn=mkEl('button','btn btn-primary','+ Import FIT File');
-  btn.onclick=openUploadModal; hdr.appendChild(btn); wrap.appendChild(hdr);
+  // Days since last session
+  var sorted=s.slice().sort(function(a,b){return new Date(b.startTime||b.importedAt)-new Date(a.startTime||a.importedAt);});
+  var lastDate=sorted.length?sorted[0].startTime:null;
+  var dSince=lastDate?daysSince(lastDate):null;
 
-  var grid=mkEl('div','stats-grid');
-  grid.style.gridTemplateColumns='repeat(auto-fill,minmax(140px,1fr))';
-  grid.innerHTML=sc('Sessions',s.length,'','','')+sc('Total Shots',totalShots.toLocaleString(),'','','')+sc('Wins',wins,'green','blue','')+sc('Losses',losses,'red','red','')+sc('Avg Errors',avgE!==null?avgE:'--','','red','per match')+sc('Avg Winners',avgW!==null?avgW:'--','green','','');
+  var hdr=mkEl('div','page-header','<div><div class="page-title">Good to see you,<br><em>let\'s review your game</em></div><div class="page-sub">'+s.length+' session'+(s.length!==1?'s':'')+' recorded'+(dSince!=null?' &middot; last session '+dSince+' day'+(dSince!==1?'s':'')+' ago':'')+'</div></div>');
+  var btn=mkEl('button','btn btn-primary','+ Import FIT File');btn.onclick=openUploadModal;hdr.appendChild(btn);wrap.appendChild(hdr);
+
+  var grid=mkEl('div','stats-grid');grid.style.gridTemplateColumns='repeat(auto-fill,minmax(140px,1fr))';
+  grid.innerHTML=sc('Sessions',s.length,'','','')+sc('Total Shots',totalShots.toLocaleString(),'','','')+sc('Wins',wins,'green','blue','')+sc('Losses',losses,'red','red','')+sc('Avg Errors',avgE!=null?avgE:'--','','red','per match')+sc('Avg Winners',avgW!=null?avgW:'--','green','','')+sc('Shot Efficiency',avgEff!=null?avgEff:'--','purple','purple','W:UE ratio');
   wrap.appendChild(grid);
 
-  var sorted=s.slice().sort(function(a,b){return new Date(b.startTime||b.importedAt)-new Date(a.startTime||a.importedAt);});
+  // Last match
   var lastMatch=sorted.filter(function(x){return x.pointsPlayed>0;})[0];
-  if (lastMatch) {
+  if(lastMatch){
     var won=lastMatch.whoWon&&lastMatch.whoWon.indexOf('WON')!==-1;
+    var eff=shotEff(lastMatch);
     var lm=mkEl('div','card mb-5');
-    lm.innerHTML='<div class="card-title">Last Match</div><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px">'+(lastMatch.matchScore?'<span class="badge '+(won?'badge-win':'badge-loss')+'">'+lastMatch.matchScore+'</span>':'')+' <span style="font-size:13px;color:var(--text2)">'+fmtDate(lastMatch.startTime)+'</span><span class="badge badge-surface">'+(lastMatch.surface||'')+'</span><span class="'+typeBadge(lastMatch.sessionType)+'">'+typeLabel(lastMatch.sessionType)+'</span></div><div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr));margin-bottom:0">'+sc('Winners',lastMatch.winners!=null?lastMatch.winners:'--','green','','')+sc('Unforced Errors',lastMatch.unforcedErrors!=null?lastMatch.unforcedErrors:'--','red','red','')+sc('Aces',lastMatch.aces!=null?lastMatch.aces:'--','','blue','')+sc('BP Won',lastMatch.breakpointsWonOf>0?lastMatch.breakpointsWon+'/'+lastMatch.breakpointsWonOf:'--','green','','')+sc('Serve Power',lastMatch.servePowerAvg?lastMatch.servePowerAvg+'%':'--','','amber','')+sc('Total Shots',lastMatch.totalCount!=null?lastMatch.totalCount:'--','','','')+'</div>';
+    lm.innerHTML='<div class="card-title">Last Match</div><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px">'+(lastMatch.matchScore?'<span class="badge '+(won?'badge-win':'badge-loss')+'">'+lastMatch.matchScore+'</span>':'')+' <span style="font-size:13px;color:var(--text2)">'+fmtDate(lastMatch.startTime)+'</span><span class="badge badge-surface">'+(lastMatch.surface||'')+'</span><span class="'+typeBadge(lastMatch.sessionType)+'">'+typeLabel(lastMatch.sessionType)+'</span>'+(lastMatch.feel?'<span class="'+feelClass(lastMatch.feel)+'">'+feelLabel(lastMatch.feel)+'</span>':'')+(lastMatch.weather?'<span class="tag">'+tempLabel(lastMatch.weather)+'</span>':'')+'</div><div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr));margin-bottom:0">'+sc('Winners',lastMatch.winners!=null?lastMatch.winners:'--','green','','')+sc('Unforced Errors',lastMatch.unforcedErrors!=null?lastMatch.unforcedErrors:'--','red','red','')+sc('Aces',lastMatch.aces!=null?lastMatch.aces:'--','','blue','')+sc('BP Won',lastMatch.breakpointsWonOf>0?lastMatch.breakpointsWon+'/'+lastMatch.breakpointsWonOf:'--','green','','')+sc('Shot Efficiency',eff!=null?eff:'--','purple','purple','W:UE')+sc('Total Shots',lastMatch.totalCount!=null?lastMatch.totalCount:'--','','','')+'</div>';
     wrap.appendChild(lm);
   }
 
+  // Recent sessions table
   var recent=sorted.slice(0,5);
-  if (recent.length) {
-    var card=mkEl('div','card');
-    card.innerHTML='<div class="card-title">Recent Sessions</div>';
+  if(recent.length){
+    var card=mkEl('div','card');card.innerHTML='<div class="card-title">Recent Sessions</div>';
     var tw=mkEl('div','table-wrap');
     var rows=recent.map(function(sess){
       var won2=sess.whoWon&&sess.whoWon.indexOf('WON')!==-1;
-      return '<tr data-id="'+sess.id+'"><td class="td-main">'+fmtDate(sess.startTime)+'</td><td><span class="'+typeBadge(sess.sessionType)+'">'+typeLabel(sess.sessionType)+'</span></td><td>'+(sess.matchScore?'<span class="badge '+(won2?'badge-win':'badge-loss')+'">'+sess.matchScore+'</span>':'&mdash;')+'</td><td>'+(sess.totalCount!=null?sess.totalCount:'--')+'</td><td style="color:'+((sess.unforcedErrors||0)>20?'var(--red)':'var(--text2)')+'">'+((sess.unforcedErrors!=null)?sess.unforcedErrors:'--')+'</td><td>'+fmtDur(sess.duration)+'</td></tr>';
+      var eff=shotEff(sess);
+      return'<tr data-id="'+sess.id+'"><td class="td-main">'+fmtDate(sess.startTime)+'</td><td><span class="'+typeBadge(sess.sessionType)+'">'+typeLabel(sess.sessionType)+'</span></td><td>'+(sess.matchScore?'<span class="badge '+(won2?'badge-win':'badge-loss')+'">'+sess.matchScore+'</span>':'&mdash;')+'</td><td>'+(sess.feel?'<span class="'+feelClass(sess.feel)+'">'+feelLabel(sess.feel)+'</span>':'&mdash;')+'</td><td>'+(sess.totalCount!=null?sess.totalCount:'--')+'</td><td style="color:'+((sess.unforcedErrors||0)>20?'var(--red)':'var(--text2)')+'">'+((sess.unforcedErrors!=null)?sess.unforcedErrors:'--')+'</td><td style="color:var(--purple)">'+((eff!=null)?eff:'--')+'</td><td>'+fmtDur(sess.duration)+'</td></tr>';
     }).join('');
-    tw.innerHTML='<table><thead><tr><th>Date</th><th>Type</th><th>Result</th><th>Shots</th><th>Errors</th><th>Duration</th></tr></thead><tbody>'+rows+'</tbody></table>';
+    tw.innerHTML='<table><thead><tr><th>Date</th><th>Type</th><th>Result</th><th>Feel</th><th>Shots</th><th>Errors</th><th>Efficiency</th><th>Duration</th></tr></thead><tbody>'+rows+'</tbody></table>';
     tw.querySelectorAll('tr[data-id]').forEach(function(r){r.onclick=function(){setPage('sessions',r.dataset.id);};});
-    card.appendChild(tw); wrap.appendChild(card);
+    card.appendChild(tw);wrap.appendChild(card);
   }
 
-  if (!s.length) {
-    wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#127934;</div><div class="empty-title">Welcome to Court Intelligence</div><div class="empty-sub">Import your first Garmin FIT file to get started.</div></div>';
-  }
+  if(!s.length){wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#127934;</div><div class="empty-title">Welcome to Court Intelligence</div><div class="empty-sub">Import your first Garmin FIT file to get started.</div></div>';}
   return wrap;
 }
 
-function renderSessions() {
+// ── SESSIONS LIST ─────────────────────────────────────────────────────────────
+function renderSessions(){
   var wrap=mkEl('div','');
   var hdr=mkEl('div','page-header','<div><div class="page-title">Sessions</div><div class="page-sub">'+state.sessions.length+' total &middot; click any row to view detail</div></div>');
-  var btn=mkEl('button','btn btn-primary','+ Import FIT File'); btn.onclick=openUploadModal; hdr.appendChild(btn); wrap.appendChild(hdr);
-  if (!state.sessions.length) { wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#128194;</div><div class="empty-title">No sessions yet</div><div class="empty-sub">Import a FIT file to get started.</div></div>'; return wrap; }
+  var btn=mkEl('button','btn btn-primary','+ Import FIT File');btn.onclick=openUploadModal;hdr.appendChild(btn);wrap.appendChild(hdr);
+  if(!state.sessions.length){wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#128194;</div><div class="empty-title">No sessions yet</div><div class="empty-sub">Import a FIT file to get started.</div></div>';return wrap;}
   var sorted=state.sessions.slice().sort(function(a,b){return new Date(b.startTime||b.importedAt)-new Date(a.startTime||a.importedAt);});
-  var card=mkEl('div','card'); var tw=mkEl('div','table-wrap');
+  var card=mkEl('div','card');var tw=mkEl('div','table-wrap');
   var rows=sorted.map(function(s){
     var opp=state.opponents.filter(function(o){return o.id===s.opponentId;})[0];
     var won=s.whoWon&&s.whoWon.indexOf('WON')!==-1;
-    return '<tr data-id="'+s.id+'"><td class="td-main">'+fmtDate(s.startTime)+'<div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace">'+fmtTime(s.startTime)+'</div></td><td><span class="'+typeBadge(s.sessionType)+'">'+typeLabel(s.sessionType)+'</span></td><td><span class="badge badge-surface">'+(s.surface||'--')+'</span></td><td>'+(opp?opp.name:'<span style="color:var(--text3)">&mdash;</span>')+'</td><td>'+(s.matchScore?'<span class="badge '+(won?'badge-win':'badge-loss')+'">'+s.matchScore+'</span>':'&mdash;')+'</td><td>'+(s.totalCount!=null?s.totalCount:'--')+'</td><td style="color:'+((s.unforcedErrors||0)>20?'var(--red)':'var(--text2)')+'">'+((s.unforcedErrors!=null)?s.unforcedErrors:'--')+'</td><td style="color:var(--accent)">'+((s.winners!=null)?s.winners:'--')+'</td><td>'+(s.avgHR?s.avgHR+' bpm':'--')+'</td><td>'+fmtDur(s.duration)+'</td></tr>';
+    var eff=shotEff(s);
+    return'<tr data-id="'+s.id+'"><td class="td-main">'+fmtDate(s.startTime)+'<div style="font-size:10px;color:var(--text3);font-family:DM Mono,monospace">'+fmtTime(s.startTime)+'</div></td><td><span class="'+typeBadge(s.sessionType)+'">'+typeLabel(s.sessionType)+'</span></td><td><span class="badge badge-surface">'+(s.surface||'--')+'</span></td><td>'+(opp?opp.name:'<span style="color:var(--text3)">&mdash;</span>')+'</td><td>'+(s.matchScore?'<span class="badge '+(won?'badge-win':'badge-loss')+'">'+s.matchScore+'</span>':'&mdash;')+'</td><td>'+(s.feel?'<span class="'+feelClass(s.feel)+'">'+feelLabel(s.feel)+'</span>':'&mdash;')+'</td><td>'+(s.weather?tempLabel(s.weather):'&mdash;')+'</td><td>'+(s.totalCount!=null?s.totalCount:'--')+'</td><td style="color:'+((s.unforcedErrors||0)>20?'var(--red)':'var(--text2)')+'">'+((s.unforcedErrors!=null)?s.unforcedErrors:'--')+'</td><td style="color:var(--purple)">'+(eff!=null?eff:'--')+'</td><td>'+fmtDur(s.duration)+'</td></tr>';
   }).join('');
-  tw.innerHTML='<table><thead><tr><th>Date</th><th>Type</th><th>Surface</th><th>Opponent</th><th>Result</th><th>Shots</th><th>Errors</th><th>Winners</th><th>Avg HR</th><th>Duration</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  tw.innerHTML='<table><thead><tr><th>Date</th><th>Type</th><th>Surface</th><th>Opponent</th><th>Result</th><th>Feel</th><th>Weather</th><th>Shots</th><th>Errors</th><th>Efficiency</th><th>Duration</th></tr></thead><tbody>'+rows+'</tbody></table>';
   tw.querySelectorAll('tr[data-id]').forEach(function(r){r.onclick=function(){state.viewingSession=r.dataset.id;renderPage();};});
-  card.appendChild(tw); wrap.appendChild(card); return wrap;
+  card.appendChild(tw);wrap.appendChild(card);return wrap;
 }
 
-function renderDetail(id) {
+// ── SESSION DETAIL ────────────────────────────────────────────────────────────
+function renderDetail(id){
   var s=state.sessions.filter(function(x){return x.id===id;})[0];
-  if (!s) { state.viewingSession=null; return renderSessions(); }
+  if(!s){state.viewingSession=null;return renderSessions();}
   var opp=state.opponents.filter(function(o){return o.id===s.opponentId;})[0];
   var won=s.whoWon&&s.whoWon.indexOf('WON')!==-1;
   var wrap=mkEl('div','');
+  var eff=shotEff(s);
+  var flags=getAutoFlags(s,state.sessions);
 
+  // Header
   var hdr=mkEl('div','page-header');
-  hdr.innerHTML='<div><button class="btn btn-ghost btn-sm" id="btnBack" style="margin-bottom:12px">&larr; Back</button><div class="page-title">'+fmtDate(s.startTime)+' <em>'+fmtTime(s.startTime)+'</em></div><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px"><span class="'+typeBadge(s.sessionType)+'">'+typeLabel(s.sessionType)+'</span><span class="badge badge-surface">'+(s.surface||'')+'</span>'+(opp?'<span class="tag">vs '+opp.name+'</span>':'')+(s.matchScore?'<span class="badge '+(won?'badge-win':'badge-loss')+'">'+s.matchScore+' &middot; '+(won?'W':'L')+'</span>':'')+'</div></div>';
+  hdr.innerHTML='<div><button class="btn btn-ghost btn-sm" id="btnBack" style="margin-bottom:12px">&larr; Back</button><div class="page-title">'+fmtDate(s.startTime)+' <em>'+fmtTime(s.startTime)+'</em></div><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px"><span class="'+typeBadge(s.sessionType)+'">'+typeLabel(s.sessionType)+'</span><span class="badge badge-surface">'+(s.surface||'')+'</span>'+(opp?'<span class="tag">vs '+opp.name+'</span>':'')+(s.matchScore?'<span class="badge '+(won?'badge-win':'badge-loss')+'">'+s.matchScore+' &middot; '+(won?'W':'L')+'</span>':'')+(s.feel?'<span class="'+feelClass(s.feel)+'">'+feelLabel(s.feel)+'</span>':'')+(s.weather?'<span class="tag">'+tempLabel(s.weather)+'</span>':'')+(s.wind&&s.wind!=='none'?'<span class="tag">'+windLabel(s.wind)+'</span>':'')+'</div></div>';
   var del=mkEl('button','btn btn-danger btn-sm','Delete');
   del.onclick=function(){if(confirm('Delete this session?')){state.sessions=state.sessions.filter(function(x){return x.id!==id;});DB.saveSessions(state.sessions);state.viewingSession=null;renderPage();}};
-  hdr.appendChild(del); wrap.appendChild(hdr);
+  hdr.appendChild(del);wrap.appendChild(hdr);
   wrap.querySelector('#btnBack').onclick=function(){state.viewingSession=null;renderPage();};
+
+  // Auto-flags
+  if(flags.length>0){
+    var fb=mkEl('div','card mb-5');
+    fb.innerHTML='<div class="card-title">&#127937; Session Flags</div>';
+    var fl=mkEl('div','');
+    flags.forEach(function(f){fl.innerHTML+='<div class="flag-item"><span class="flag-icon">'+f.icon+'</span><span>'+f.text+'</span></div>';});
+    fb.appendChild(fl);wrap.appendChild(fb);
+  }
+
+  // AI Analysis (if saved)
+  if(s.aiAnalysis){
+    var aib=mkEl('div','card mb-5');
+    aib.innerHTML='<div class="card-title">&#10024; AI Analysis</div><div class="ai-body">'+s.aiAnalysis.replace(/\n/g,'<br>').replace(/•/g,'&bull;')+'</div>';
+    wrap.appendChild(aib);
+  }
 
   // Fitness
   var fit=mkEl('div','mb-5');
@@ -579,9 +741,7 @@ function renderDetail(id) {
   var shotSec=mkEl('div','mb-5');
   shotSec.innerHTML='<div class="section-title">Shot Breakdown &middot; '+(s.totalCount||'?')+' total</div>';
   var tc=mkEl('div','two-col');
-
-  var sbCard=mkEl('div','card');
-  sbCard.innerHTML='<div class="card-title">Distribution &amp; Power (avg/max %)</div>';
+  var sbCard=mkEl('div','card');sbCard.innerHTML='<div class="card-title">Distribution &amp; Power (avg/max %)</div>';
   var shotDefs=[
     {label:'Forehand',count:s.forehandCount,pA:s.forehandPowerAvg,pM:s.forehandPowerMax,color:'#3ddc6e'},
     {label:'Backhand',count:s.backhandCount,pA:s.backhandPowerAvg,pM:s.backhandPowerMax,color:'#5cb8ff'},
@@ -591,229 +751,305 @@ function renderDetail(id) {
   ].filter(function(x){return x.count>0;});
   var maxC=Math.max.apply(null,shotDefs.map(function(x){return x.count||0;}).concat([1]));
   var bars=mkEl('div','shot-bars');
-  shotDefs.forEach(function(sd){
-    var row=mkEl('div','shot-row');
-    row.innerHTML='<div class="shot-lbl">'+sd.label+'</div><div class="shot-bar-wrap"><div class="shot-bar-fill" style="width:'+((sd.count/maxC)*100)+'%;background:'+sd.color+'"></div></div><div class="shot-cnt">'+sd.count+'</div><div class="shot-pwr">'+(sd.pA!=null?sd.pA+'/'+sd.pM+'%':'')+'</div>';
-    bars.appendChild(row);
-  });
-  sbCard.appendChild(bars); tc.appendChild(sbCard);
-
+  shotDefs.forEach(function(sd){var row=mkEl('div','shot-row');row.innerHTML='<div class="shot-lbl">'+sd.label+'</div><div class="shot-bar-wrap"><div class="shot-bar-fill" style="width:'+((sd.count/maxC)*100)+'%;background:'+sd.color+'"></div></div><div class="shot-cnt">'+sd.count+'</div><div class="shot-pwr">'+(sd.pA!=null?sd.pA+'/'+sd.pM+'%':'')+'</div>';bars.appendChild(row);});
+  sbCard.appendChild(bars);tc.appendChild(sbCard);
   var scCard=mkEl('div','card');
-  scCard.innerHTML='<div class="card-title">Counts</div><div class="stats-grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0">'+sc('Forehand',s.forehandCount!=null?s.forehandCount:'--','','','')+sc('Backhand',s.backhandCount!=null?s.backhandCount:'--','','blue','')+sc('Serve',s.serveCount!=null?s.serveCount:'--','','amber','')+sc('BH Slice',s.bSliceCount!=null?s.bSliceCount:'--','','','')+'</div>';
-  tc.appendChild(scCard); shotSec.appendChild(tc); wrap.appendChild(shotSec);
+  var fhbhRatio=s.forehandCount&&s.backhandCount&&s.backhandCount>0?Math.round((s.forehandCount/s.backhandCount)*10)/10:null;
+  scCard.innerHTML='<div class="card-title">Counts &amp; Efficiency</div><div class="stats-grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0">'+sc('Forehand',s.forehandCount!=null?s.forehandCount:'--','','','')+sc('Backhand',s.backhandCount!=null?s.backhandCount:'--','','blue','')+sc('Serve',s.serveCount!=null?s.serveCount:'--','','amber','')+sc('BH Slice',s.bSliceCount!=null?s.bSliceCount:'--','','','')+sc('FH/BH Ratio',fhbhRatio!=null?fhbhRatio+':1':'--','','','')+sc('Shot Efficiency',eff!=null?eff:'--','purple','purple','W:UE')+'</div>';
+  tc.appendChild(scCard);shotSec.appendChild(tc);wrap.appendChild(shotSec);
 
   // Match stats
-  if (s.pointsPlayed>0) {
-    var ms=mkEl('div','mb-5');
-    ms.innerHTML='<div class="section-title">Match Statistics</div><div class="stats-grid">'+sc('Points Played',s.pointsPlayed,'','','')+sc('Points Won',s.pointsWon!=null?s.pointsWon:'--','green','','')+sc('Points Lost',s.pointsLost!=null?s.pointsLost:'--','red','red','')+sc('Winners',s.winners!=null?s.winners:'--','green','','')+sc('Aces',s.aces!=null?s.aces:'--','','blue','')+sc('Unforced Errors',s.unforcedErrors!=null?s.unforcedErrors:'--','red','red','')+sc('Forced Errors',s.forcedErrors!=null?s.forcedErrors:'--','','amber','')+sc('Double Faults',s.doubleFaults!=null?s.doubleFaults:'--','red','red','')+sc('Opponent Errors',s.opponentErrors!=null?s.opponentErrors:'--','','','')+sc('BP Won',s.breakpointsWonOf>0?s.breakpointsWon+'/'+s.breakpointsWonOf:'--','green','','')+sc('BP Saved',s.breakpointsSavedOf>0?s.breakpointsSaved+'/'+s.breakpointsSavedOf:'--','','','')+sc('Service Games',s.serviceGamesWonOf>0?s.serviceGamesWon+'/'+s.serviceGamesWonOf:'--','green','','')+'</div>';
-    wrap.appendChild(ms);
+  if(s.matchLaps&&s.matchLaps.length>0){
+    var lapsToShow=s.matchLaps,isMerged=s.matchLaps.length>1&&s._mergedLaps;
+    if(s.matchLaps.length>1&&!isMerged){
+      var mergeBar=mkEl('div','');
+      mergeBar.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding:12px 16px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r)';
+      mergeBar.innerHTML='<div style="font-size:12px;color:var(--text2)">&#9888; This session has <strong style="color:var(--text)">'+s.matchLaps.length+' match recordings</strong> &mdash; same opponent? Merge into combined stats.</div>';
+      var mergeBtn=mkEl('button','btn btn-primary btn-sm','Merge into one');
+      mergeBtn.onclick=function(){
+        function sumF(f){var t=0,any=false;lapsToShow.forEach(function(l){if(l[f]!=null){t+=l[f];any=true;}});return any?t:null;}
+        function sumFrac(n,d){var tn=0,td=0,any=false;lapsToShow.forEach(function(l){if(l[n]!=null&&l[d]!=null){tn+=l[n];td+=l[d];any=true;}});return any?{n:tn,d:td}:null;}
+        var scores=lapsToShow.map(function(l){return l.matchScore||'';}).filter(Boolean).join(' + ');
+        var wins=lapsToShow.filter(function(l){return l.whoWon&&l.whoWon.indexOf('WON')!==-1;}).length;
+        var merged={matchScore:scores,whoWon:wins>0?'YOU WON!':'YOU LOST.',pointsPlayed:sumF('pointsPlayed'),pointsWon:sumF('pointsWon'),pointsLost:sumF('pointsLost'),winners:sumF('winners'),aces:sumF('aces'),unforcedErrors:sumF('unforcedErrors'),forcedErrors:sumF('forcedErrors'),doubleFaults:sumF('doubleFaults'),opponentErrors:sumF('opponentErrors'),matchPoints:sumF('matchPoints')};
+        var bp=sumFrac('breakpointsWon','breakpointsWonOf');if(bp){merged.breakpointsWon=bp.n;merged.breakpointsWonOf=bp.d;}
+        var bps=sumFrac('breakpointsSaved','breakpointsSavedOf');if(bps){merged.breakpointsSaved=bps.n;merged.breakpointsSavedOf=bps.d;}
+        var sg=sumFrac('serviceGamesWon','serviceGamesWonOf');if(sg){merged.serviceGamesWon=sg.n;merged.serviceGamesWonOf=sg.d;}
+        var idx=-1;for(var i=0;i<state.sessions.length;i++){if(state.sessions[i].id===s.id){idx=i;break;}}
+        if(idx!==-1){state.sessions[idx]._mergedLaps=merged;var mk=['matchScore','whoWon','pointsPlayed','pointsWon','pointsLost','winners','aces','unforcedErrors','forcedErrors','doubleFaults','opponentErrors','matchPoints','breakpointsWon','breakpointsWonOf','breakpointsSaved','breakpointsSavedOf','serviceGamesWon','serviceGamesWonOf'];mk.forEach(function(k){if(merged[k]!=null)state.sessions[idx][k]=merged[k];});DB.saveSessions(state.sessions);}
+        state.viewingSession=s.id;renderPage();
+      };
+      mergeBar.appendChild(mergeBtn);wrap.appendChild(mergeBar);
+    }
+
+    function lapStatsHTML(lap){
+      return'<div class="stats-grid">'+sc('Points Played',lap.pointsPlayed!=null?lap.pointsPlayed:'--','','','')+sc('Points Won',lap.pointsWon!=null?lap.pointsWon:'--','green','','')+sc('Points Lost',lap.pointsLost!=null?lap.pointsLost:'--','red','red','')+sc('Winners',lap.winners!=null?lap.winners:'--','green','','')+sc('Aces',lap.aces!=null?lap.aces:'--','','blue','')+sc('Unforced Errors',lap.unforcedErrors!=null?lap.unforcedErrors:'--','red','red','')+sc('Forced Errors',lap.forcedErrors!=null?lap.forcedErrors:'--','','amber','')+sc('Double Faults',lap.doubleFaults!=null?lap.doubleFaults:'--','red','red','')+sc('Opponent Errors',lap.opponentErrors!=null?lap.opponentErrors:'--','','','')+sc('BP Won',lap.breakpointsWonOf>0?lap.breakpointsWon+'/'+lap.breakpointsWonOf:'--','green','','')+sc('BP Saved',lap.breakpointsSavedOf>0?lap.breakpointsSaved+'/'+lap.breakpointsSavedOf:'--','','','')+sc('Service Games',lap.serviceGamesWonOf>0?lap.serviceGamesWon+'/'+lap.serviceGamesWonOf:'--','green','','')+'</div>';
+    }
+
+    if(isMerged){
+      var ml=s._mergedLaps,mwon=ml.whoWon&&ml.whoWon.indexOf('WON')!==-1;
+      var ms=mkEl('div','mb-5');
+      var hd=mkEl('div','');hd.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)';
+      hd.innerHTML='<span style="font-family:DM Mono,monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3)">Combined Match Stats &middot; '+s.matchLaps.length+' recordings</span>';
+      var ub=mkEl('button','btn btn-ghost btn-sm','Split back');
+      ub.onclick=function(){var idx=-1;for(var i=0;i<state.sessions.length;i++){if(state.sessions[i].id===s.id){idx=i;break;}}if(idx!==-1){delete state.sessions[idx]._mergedLaps;DB.saveSessions(state.sessions);}state.viewingSession=s.id;renderPage();};
+      hd.appendChild(ub);ms.appendChild(hd);
+      ms.innerHTML+='<div style="display:flex;gap:8px;align-items:center;margin-bottom:14px"><span class="badge '+(mwon?'badge-win':'badge-loss')+'">'+ml.matchScore+'</span><span style="font-size:12px;color:var(--text3)">'+ml.whoWon+'</span></div>'+lapStatsHTML(ml);
+      wrap.appendChild(ms);
+    }else{
+      lapsToShow.forEach(function(lap,idx){
+        var ms=mkEl('div','mb-5');
+        var lwon=lap.whoWon&&lap.whoWon.indexOf('WON')!==-1,lunfin=lap.whoWon&&lap.whoWon.indexOf('NOT FINISHED')!==-1;
+        var lapTitle=s.matchLaps.length>1?'Match '+(idx+1)+(lap.matchScore?' &middot; '+lap.matchScore:''):'Match Statistics';
+        ms.innerHTML='<div class="section-title">'+lapTitle+'</div>'+(lap.matchScore&&s.matchLaps.length>1?'<div style="display:flex;gap:8px;align-items:center;margin-bottom:14px"><span class="badge '+(lunfin?'badge-casual':lwon?'badge-win':'badge-loss')+'">'+lap.matchScore+'</span><span style="font-size:12px;color:var(--text3)">'+lap.whoWon+'</span></div>':'')+lapStatsHTML(lap);
+        wrap.appendChild(ms);
+      });
+    }
+  }else if(s.pointsPlayed>0){
+    var ms=mkEl('div','mb-5');ms.innerHTML='<div class="section-title">Match Statistics</div>'+lapStatsHTML(s);wrap.appendChild(ms);
   }
 
-  if (s.notes) {
-    var n=mkEl('div','card');
-    n.innerHTML='<div class="card-title">Notes</div><div style="font-size:13px;color:var(--text2);line-height:1.6">'+s.notes+'</div>';
-    wrap.appendChild(n);
-  }
+  if(s.notes){var n=mkEl('div','card');n.innerHTML='<div class="card-title">Notes</div><div style="font-size:13px;color:var(--text2);line-height:1.6">'+s.notes+'</div>';wrap.appendChild(n);}
   return wrap;
 }
 
-function renderTrends() {
+// ── TRENDS ────────────────────────────────────────────────────────────────────
+function renderTrends(){
   var wrap=mkEl('div','');
   wrap.innerHTML='<div class="page-header"><div><div class="page-title">Trends &amp; <em>Progress</em></div><div class="page-sub">Track improvement over time</div></div></div>';
 
-  var tabs=mkEl('div','tabs');
+  // Filter tabs
+  var tabsEl=mkEl('div','tabs');
   [['all','All'],['competitive','Competitive'],['friendly','Friendly'],['casual','Casual']].forEach(function(f){
     var t=mkEl('div','tab'+(state.trendsFilter===f[0]?' active':''),f[1]);
-    t.onclick=function(){state.trendsFilter=f[0];renderPage();};
-    tabs.appendChild(t);
+    t.onclick=function(){state.trendsFilter=f[0];renderPage();};tabsEl.appendChild(t);
   });
-  wrap.appendChild(tabs);
+  wrap.appendChild(tabsEl);
 
-  if (state.sessions.length < 2) {
-    wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#128200;</div><div class="empty-title">Not enough data yet</div><div class="empty-sub">Import at least 2 sessions to see trends.</div></div>';
-    return wrap;
-  }
+  // Rolling toggle
+  var rt=mkEl('div','');rt.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:20px;font-size:12px;color:var(--text2)';
+  rt.innerHTML='<span>Rolling average overlay:</span>';
+  var rb=mkEl('button','btn btn-sm '+(state.trendsRolling?'btn-primary':'btn-ghost'),state.trendsRolling?'On':'Off');
+  rb.onclick=function(){state.trendsRolling=!state.trendsRolling;renderPage();};
+  rt.appendChild(rb);wrap.appendChild(rt);
+
+  if(state.sessions.length<2){wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#128200;</div><div class="empty-title">Not enough data yet</div><div class="empty-sub">Import at least 2 sessions to see trends.</div></div>';return wrap;}
 
   var filtered=state.sessions.filter(function(s){return state.trendsFilter==='all'||s.sessionType===state.trendsFilter;}).filter(function(s){return s.startTime;}).sort(function(a,b){return new Date(a.startTime)-new Date(b.startTime);});
-  if (filtered.length < 2) { wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#128200;</div><div class="empty-title">Not enough data for this filter</div><div class="empty-sub">Try "All Sessions" or add more sessions of this type.</div></div>'; return wrap; }
+  if(filtered.length<2){wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#128200;</div><div class="empty-title">Not enough data for this filter</div><div class="empty-sub">Try "All Sessions" or add more sessions of this type.</div></div>';return wrap;}
 
-  function toCD(key) { return filtered.map(function(s){return{label:fmtDate(s.startTime).split(' ').slice(0,2).join(' '),y:s[key]!=null&&!isNaN(s[key])?+s[key]:null};}); }
+  function toCD(key){return filtered.map(function(s){return{label:fmtDate(s.startTime).split(' ').slice(0,2).join(' '),y:s[key]!=null&&!isNaN(s[key])?+s[key]:null};});}
   var bpConv=filtered.map(function(s){return{label:fmtDate(s.startTime).split(' ').slice(0,2).join(' '),y:s.breakpointsWonOf>0?Math.round((s.breakpointsWon/s.breakpointsWonOf)*100):null};});
+  var effData=filtered.map(function(s){return{label:fmtDate(s.startTime).split(' ').slice(0,2).join(' '),y:shotEff(s)};});
+  var feelData=filtered.map(function(s){return{label:fmtDate(s.startTime).split(' ').slice(0,2).join(' '),y:s.feel?+s.feel:null};});
 
   var charts=[
     {title:'Unforced Errors',data:toCD('unforcedErrors'),color:'255,92,92'},
     {title:'Winners',data:toCD('winners'),color:'61,220,110'},
-    {title:'Forehand Power (avg %)',data:toCD('forehandPowerAvg'),color:'61,220,110'},
-    {title:'Serve Power (avg %)',data:toCD('servePowerAvg'),color:'240,167,66'},
+    {title:'Shot Efficiency (W:UE)',data:effData,color:'179,157,255'},
+    {title:'Forehand Power Avg %',data:toCD('forehandPowerAvg'),color:'61,220,110'},
+    {title:'Backhand Power Avg %',data:toCD('backhandPowerAvg'),color:'92,184,255'},
+    {title:'Serve Power Avg %',data:toCD('servePowerAvg'),color:'240,167,66'},
     {title:'Aces',data:toCD('aces'),color:'92,184,255'},
     {title:'Break Point Conversion %',data:bpConv,color:'240,167,66'},
+    {title:'Double Faults',data:toCD('doubleFaults'),color:'255,92,92'},
     {title:'Total Shots',data:toCD('totalCount'),color:'143,168,150'},
-    {title:'Avg Heart Rate',data:toCD('avgHR'),color:'255,92,92'}
+    {title:'Avg Heart Rate',data:toCD('avgHR'),color:'255,92,92'},
+    {title:'How I Felt (1-5)',data:feelData,color:'61,220,110'}
   ];
 
   var grid=mkEl('div','two-col');
-  charts.forEach(function(c){
-    var card=mkEl('div','card mb-4');
-    card.innerHTML='<div class="card-title">'+c.title+'</div>';
-    var cw=mkEl('div','chart-wrap');
-    var canvas=document.createElement('canvas');
-    canvas.style.display='block'; canvas.style.width='100%';
-    cw.appendChild(canvas); card.appendChild(cw); grid.appendChild(card);
-    setTimeout(function(cn,d,col){return function(){drawChart(cn,d,'rgb('+col+')');};}(canvas,c.data,c.color),100);
-  });
+  charts.forEach(function(c){grid.appendChild(makeChart(c.title,c.data,'rgb('+c.color+')',state.trendsRolling));});
   wrap.appendChild(grid);
   return wrap;
 }
 
-function renderCompare() {
+// ── SERVE ANALYSIS ────────────────────────────────────────────────────────────
+function renderServe(){
+  var wrap=mkEl('div','');
+  wrap.innerHTML='<div class="page-header"><div><div class="page-title">Serve <em>Analysis</em></div><div class="page-sub">Serving patterns and trends across all sessions</div></div></div>';
+
+  var s=state.sessions.filter(function(x){return x.serveCount>0;});
+  if(s.length<1){wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#9654;</div><div class="empty-title">No serve data yet</div><div class="empty-sub">Import sessions to see serving stats.</div></div>';return wrap;}
+
+  var sorted=s.slice().sort(function(a,b){return new Date(b.startTime)-new Date(a.startTime);});
+  var avgSrvCount=Math.round(s.reduce(function(a,x){return a+(x.serveCount||0);},0)/s.length);
+  var avgSrvPwr=Math.round(s.filter(function(x){return x.servePowerAvg;}).reduce(function(a,x){return a+x.servePowerAvg;},0)/s.filter(function(x){return x.servePowerAvg;}).length)||null;
+  var avgSrvMax=Math.round(s.filter(function(x){return x.servePowerMax;}).reduce(function(a,x){return a+x.servePowerMax;},0)/s.filter(function(x){return x.servePowerMax;}).length)||null;
+  var withMatch=s.filter(function(x){return x.aces!=null;});
+  var avgAces=withMatch.length?Math.round(withMatch.reduce(function(a,x){return a+(x.aces||0);},0)/withMatch.length*10)/10:null;
+  var avgDF=withMatch.length?Math.round(withMatch.reduce(function(a,x){return a+(x.doubleFaults||0);},0)/withMatch.length*10)/10:null;
+  var aceRate=withMatch.length&&avgSrvCount?Math.round(avgAces/avgSrvCount*100*10)/10:null;
+  var dfRate=withMatch.length&&avgSrvCount?Math.round(avgDF/avgSrvCount*100*10)/10:null;
+
+  // Summary stats
+  var grid=mkEl('div','stats-grid');grid.style.marginBottom='28px';
+  grid.innerHTML=sc('Avg Serves/Session',avgSrvCount||'--','','','')+sc('Avg Power',avgSrvPwr?avgSrvPwr+'%':'--','','amber','')+sc('Avg Max Power',avgSrvMax?avgSrvMax+'%':'--','','amber','')+sc('Avg Aces',avgAces!=null?avgAces:'--','green','blue','')+sc('Avg DFs',avgDF!=null?avgDF:'--','red','red','')+sc('Ace Rate',aceRate!=null?aceRate+'%':'--','green','','')+sc('DF Rate',dfRate!=null?dfRate+'%':'--','red','red','');
+  wrap.appendChild(grid);
+
+  // Serve power trend
+  var chronoSorted=s.slice().sort(function(a,b){return new Date(a.startTime)-new Date(b.startTime);});
+  var pwrData=chronoSorted.map(function(x){return{label:fmtDate(x.startTime).split(' ').slice(0,2).join(' '),y:x.servePowerAvg||null};});
+  var aceData=chronoSorted.map(function(x){return{label:fmtDate(x.startTime).split(' ').slice(0,2).join(' '),y:x.aces!=null?x.aces:null};});
+  var dfData=chronoSorted.map(function(x){return{label:fmtDate(x.startTime).split(' ').slice(0,2).join(' '),y:x.doubleFaults!=null?x.doubleFaults:null};});
+  var srvCountData=chronoSorted.map(function(x){return{label:fmtDate(x.startTime).split(' ').slice(0,2).join(' '),y:x.serveCount||null};});
+
+  var grid2=mkEl('div','two-col');
+  grid2.appendChild(makeChart('Serve Power Avg %',pwrData,'rgb(240,167,66)',true));
+  grid2.appendChild(makeChart('Aces per Match',aceData,'rgb(92,184,255)',true));
+  grid2.appendChild(makeChart('Double Faults per Match',dfData,'rgb(255,92,92)',true));
+  grid2.appendChild(makeChart('Serve Count per Session',srvCountData,'rgb(143,168,150)',false));
+  wrap.appendChild(grid2);
+
+  // Session table
+  var card=mkEl('div','card');card.innerHTML='<div class="card-title">Session Breakdown</div>';
+  var tw=mkEl('div','table-wrap');
+  var rows=sorted.map(function(x){
+    var won=x.whoWon&&x.whoWon.indexOf('WON')!==-1;
+    return'<tr data-id="'+x.id+'"><td class="td-main">'+fmtDate(x.startTime)+'</td><td>'+(x.matchScore?'<span class="badge '+(won?'badge-win':'badge-loss')+'">'+x.matchScore+'</span>':'&mdash;')+'</td><td>'+(x.serveCount||'--')+'</td><td style="color:var(--amber)">'+(x.servePowerAvg?x.servePowerAvg+'%':'--')+'</td><td>'+(x.servePowerMax?x.servePowerMax+'%':'--')+'</td><td style="color:var(--accent)">'+(x.aces!=null?x.aces:'--')+'</td><td style="color:var(--red)">'+(x.doubleFaults!=null?x.doubleFaults:'--')+'</td></tr>';
+  }).join('');
+  tw.innerHTML='<table><thead><tr><th>Date</th><th>Result</th><th>Serve Count</th><th>Power Avg</th><th>Power Max</th><th>Aces</th><th>DFs</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  tw.querySelectorAll('tr[data-id]').forEach(function(r){r.onclick=function(){setPage('sessions',r.dataset.id);};});
+  card.appendChild(tw);wrap.appendChild(card);
+  return wrap;
+}
+
+// ── OPPONENTS ─────────────────────────────────────────────────────────────────
+function renderOpponents(){
+  var wrap=mkEl('div','');
+  var hdr=mkEl('div','page-header','<div><div class="page-title">Opponents</div><div class="page-sub">Head-to-head stats vs your overall averages</div></div>');
+  var btn=mkEl('button','btn btn-primary','+ Add Opponent');btn.onclick=function(e){openOppModal(e);};hdr.appendChild(btn);wrap.appendChild(hdr);
+
+  if(!state.opponents.length){
+    var empty=mkEl('div','empty','<div class="empty-icon">&#128100;</div><div class="empty-title">No opponents yet</div><div class="empty-sub">Add players you regularly compete or practise with.</div>');
+    wrap.appendChild(empty);return wrap;
+  }
+
+  // Overall averages for comparison
+  var allMatch=state.sessions.filter(function(s){return s.pointsPlayed>0;});
+  var oAvgUE=allMatch.length?Math.round(allMatch.reduce(function(a,x){return a+(x.unforcedErrors||0);},0)/allMatch.length):null;
+  var oAvgW=allMatch.length?Math.round(allMatch.reduce(function(a,x){return a+(x.winners||0);},0)/allMatch.length):null;
+  var oAvgDF=allMatch.length?Math.round(allMatch.reduce(function(a,x){return a+(x.doubleFaults||0);},0)/allMatch.length):null;
+  var oAvgEff=allMatch.filter(function(s){return shotEff(s)!=null;});
+  var oEff=oAvgEff.length?Math.round(oAvgEff.reduce(function(a,x){return a+shotEff(x);},0)/oAvgEff.length*100)/100:null;
+
+  var grid=mkEl('div','opp-grid');
+  state.opponents.forEach(function(opp){
+    var oppS=state.sessions.filter(function(s){return s.opponentId===opp.id;});
+    var oppMatch=oppS.filter(function(s){return s.pointsPlayed>0;});
+    var wins=oppS.filter(function(s){return s.whoWon&&s.whoWon.indexOf('WON')!==-1;}).length;
+    var losses=oppS.filter(function(s){return s.whoWon&&s.whoWon.indexOf('WON')===-1&&s.whoWon.trim()!=='';}).length;
+    var vUE=oppMatch.length?Math.round(oppMatch.reduce(function(a,x){return a+(x.unforcedErrors||0);},0)/oppMatch.length):null;
+    var vW=oppMatch.length?Math.round(oppMatch.reduce(function(a,x){return a+(x.winners||0);},0)/oppMatch.length):null;
+    var vDF=oppMatch.length?Math.round(oppMatch.reduce(function(a,x){return a+(x.doubleFaults||0);},0)/oppMatch.length):null;
+    var vEffArr=oppMatch.filter(function(s){return shotEff(s)!=null;});
+    var vEff=vEffArr.length?Math.round(vEffArr.reduce(function(a,x){return a+shotEff(x);},0)/vEffArr.length*100)/100:null;
+
+    function cmpStat(label,vs,overall,lowerIsBetter){
+      if(vs==null)return'<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border2);font-size:12px"><span style="color:var(--text2)">'+label+'</span><span style="color:var(--text3)">No data</span></div>';
+      var diff=vs-overall;var better=(lowerIsBetter?diff<0:diff>0);var same=Math.abs(diff)<0.5;
+      var arrow=same?'':better?'&#9650;':'&#9660;';var col=same?'var(--text2)':better?'var(--accent)':'var(--red)';
+      return'<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border2);font-size:12px"><span style="color:var(--text2)">'+label+'</span><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--text3);font-size:10px">avg: '+(overall||'?')+'</span><span style="color:'+col+';font-family:DM Mono,monospace;font-weight:600">'+vs+' '+arrow+'</span></div></div>';
+    }
+
+    var card=mkEl('div','opp-card');
+    card.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="opp-name">'+opp.name+'</div><button class="btn btn-danger btn-sm" data-id="'+opp.id+'">&times;</button></div>'+(opp.level?'<div class="tag" style="margin:6px 0 12px">'+opp.level+'</div>':'<div style="margin-bottom:12px"></div>')+'<div class="opp-stats"><div><div class="opp-stat-n">'+oppS.length+'</div><div class="opp-stat-l">Sessions</div></div><div><div class="opp-stat-n" style="color:var(--accent)">'+wins+'</div><div class="opp-stat-l">Wins</div></div><div><div class="opp-stat-n" style="color:var(--red)">'+losses+'</div><div class="opp-stat-l">Losses</div></div></div>'+(oppMatch.length>0?'<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"><div style="font-size:9px;font-family:DM Mono,monospace;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">vs overall avg</div>'+cmpStat('Unforced Errors',vUE,oAvgUE,true)+cmpStat('Winners',vW,oAvgW,false)+cmpStat('Double Faults',vDF,oAvgDF,true)+cmpStat('Shot Efficiency',vEff,oEff,false)+'</div>':'')+(opp.notes?'<div style="font-size:12px;color:var(--text3);border-top:1px solid var(--border);padding-top:10px;margin-top:10px">'+opp.notes+'</div>':'');
+    card.querySelector('button').onclick=function(e){e.stopPropagation();var oid=this.dataset.id;if(confirm('Delete opponent?')){state.opponents=state.opponents.filter(function(o){return o.id!==oid;});DB.saveOpponents(state.opponents);renderPage();}};
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);return wrap;
+}
+
+// ── COMPARE ───────────────────────────────────────────────────────────────────
+function renderCompare(){
   var wrap=mkEl('div','');
   var sessions=state.sessions.slice().sort(function(a,b){return new Date(b.startTime||b.importedAt)-new Date(a.startTime||a.importedAt);});
   var sel=state.compareSelected;
-
-  // Header
-  var hdr=mkEl('div','page-header','<div><div class="page-title">Compare <em>Sessions</em></div><div class="page-sub">Select up to 5 sessions to compare side by side</div></div>');
-  if(sel.length>=2){var btn=mkEl('button','btn btn-primary','View Comparison'); btn.onclick=function(){renderPage();}; hdr.appendChild(btn);}
+  var hdr=mkEl('div','page-header','<div><div class="page-title">Compare <em>Sessions</em></div><div class="page-sub">Select up to 5 sessions</div></div>');
   wrap.appendChild(hdr);
+  if(!sessions.length){wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#8646;</div><div class="empty-title">No sessions yet</div></div>';return wrap;}
 
-  if(!sessions.length){
-    var e=mkEl('div','empty','<div class="empty-icon">&#8646;</div><div class="empty-title">No sessions yet</div><div class="empty-sub">Import sessions to start comparing.</div>');
-    wrap.appendChild(e); return wrap;
-  }
-
-  // Session picker
-  var pickerLabel=mkEl('div','card-title','Select Sessions ('+sel.length+'/5 selected)');
-  wrap.appendChild(pickerLabel);
+  var pickerLabel=mkEl('div','card-title','Select Sessions ('+sel.length+'/5 selected)');wrap.appendChild(pickerLabel);
   var picker=mkEl('div','compare-picker');
   sessions.forEach(function(s){
     var opp=state.opponents.filter(function(o){return o.id===s.opponentId;})[0];
-    var isSel=sel.indexOf(s.id)!==-1;
-    var won=s.whoWon&&s.whoWon.indexOf('WON')!==-1;
+    var isSel=sel.indexOf(s.id)!==-1,won=s.whoWon&&s.whoWon.indexOf('WON')!==-1;
     var card=mkEl('div','compare-pick-card'+(isSel?' selected':''));
-    card.innerHTML='<div class="pick-check">'+(isSel?'&#10003;':'')+'</div>'
-      +'<div class="pick-date">'+fmtDate(s.startTime)+' &middot; '+fmtTime(s.startTime)+'</div>'
-      +'<div class="pick-title">'+(s.matchScore?s.matchScore+' &middot; '+(won?'W':'L'):(opp?'vs '+opp.name:'Session'))+'</div>'
-      +'<div class="pick-meta"><span class="'+typeBadge(s.sessionType)+'">'+typeLabel(s.sessionType)+'</span><span class="badge badge-surface">'+(s.surface||'')+'</span>'+(opp?'<span class="tag">'+opp.name+'</span>':'')+'</div>';
-    card.onclick=function(){
-      var idx=sel.indexOf(s.id);
-      if(idx===-1){ if(sel.length>=5) return; sel.push(s.id); }
-      else { sel.splice(idx,1); }
-      state.compareSelected=sel;
-      renderPage();
-    };
+    card.innerHTML='<div class="pick-check">'+(isSel?'&#10003;':'')+'</div><div class="pick-date">'+fmtDate(s.startTime)+' &middot; '+fmtTime(s.startTime)+'</div><div class="pick-title">'+(s.matchScore?s.matchScore+' &middot; '+(won?'W':'L'):(opp?'vs '+opp.name:'Session'))+'</div><div class="pick-meta"><span class="'+typeBadge(s.sessionType)+'">'+typeLabel(s.sessionType)+'</span><span class="badge badge-surface">'+(s.surface||'')+'</span>'+(opp?'<span class="tag">'+opp.name+'</span>':'')+'</div>';
+    card.onclick=function(){var idx=sel.indexOf(s.id);if(idx===-1){if(sel.length>=5)return;sel.push(s.id);}else{sel.splice(idx,1);}state.compareSelected=sel;renderPage();};
     picker.appendChild(card);
   });
   wrap.appendChild(picker);
 
-  if(sel.length<2){
-    var hint=mkEl('div','empty','<div class="empty-icon">&#128203;</div><div class="empty-title">Select at least 2 sessions</div><div class="empty-sub">Pick sessions above to see a side-by-side breakdown of every stat.</div>');
-    wrap.appendChild(hint); return wrap;
-  }
+  if(sel.length<2){wrap.innerHTML+='<div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-title">Select at least 2 sessions</div><div class="empty-sub">Pick sessions above to compare every stat side by side.</div></div>';return wrap;}
 
-  // Get selected session objects in order
-  var chosen=sel.map(function(id){return sessions.filter(function(s){return s.id===id;})[0];}).filter(Boolean);
-
-  // Session colour palette
+  var chosen=sel.map(function(id){for(var i=0;i<sessions.length;i++){if(sessions[i].id===id)return sessions[i];}return null;}).filter(Boolean);
   var palette=['#3ddc6e','#5cb8ff','#f0a742','#ff7eb3','#b39dff'];
 
-  // Helper: get numeric value or null
-  function nv(s,key){ var v=s[key]; return (v!=null&&!isNaN(v))?+v:null; }
-
-  // Helper: format fraction
-  function frac(a,b){ return (a!=null&&b!=null&&b>0)?a+'/'+b:'--'; }
-
-  // Helper: find best/worst index for a metric (higherIsBetter flag)
-  function bestWorst(vals, higherIsBetter){
+  function bestWorst(vals,hib){
     var valid=vals.map(function(v,i){return{v:v,i:i};}).filter(function(x){return x.v!=null;});
-    if(valid.length<2) return{best:-1,worst:-1};
-    valid.sort(function(a,b){return higherIsBetter?b.v-a.v:a.v-b.v;});
-    return{best:valid[0].i, worst:valid[valid.length-1].i};
+    if(valid.length<2)return{best:-1,worst:-1};
+    valid.sort(function(a,b){return hib?b.v-a.v:a.v-b.v;});
+    return{best:valid[0].i,worst:valid[valid.length-1].i};
   }
 
-  // Build comparison table
-  function makeTable(title, rows) {
-    // rows: [{label, key, higherIsBetter, format, suffix}]
-    var card=mkEl('div','card mb-5');
-    card.innerHTML='<div class="card-title">'+title+'</div>';
-    var cw=mkEl('div','cmp-wrap');
-    var tbl=mkEl('table','cmp-table');
-
-    // Header row
-    var thead=mkEl('thead','');
-    var hr=mkEl('tr','');
-    hr.innerHTML='<th>Metric</th>';
+  function makeTable(title,rows){
+    var card=mkEl('div','card mb-5');card.innerHTML='<div class="card-title">'+title+'</div>';
+    var cw=mkEl('div','cmp-wrap');var tbl=mkEl('table','cmp-table');
+    var thead=mkEl('thead','');var hr=mkEl('tr','');hr.innerHTML='<th>Metric</th>';
     chosen.forEach(function(s,i){
-      var opp=state.opponents.filter(function(o){return o.id===s.opponentId;})[0];
       var won=s.whoWon&&s.whoWon.indexOf('WON')!==-1;
-      hr.innerHTML+='<th class="session-col"><div class="session-badge"><div class="s-date">'+fmtDate(s.startTime).split(' ').slice(0,2).join(' ')+'</div><div style="width:28px;height:3px;background:'+palette[i]+';border-radius:2px;margin:3px auto"></div><div class="s-type"><span class="'+typeBadge(s.sessionType)+'">'+typeLabel(s.sessionType).slice(0,4)+'</span>'+(s.matchScore?'<br><small style="color:'+(won?'var(--accent)':'var(--red)')+'">'+s.matchScore+'</small>':'')+'</div></div></th>';
+      hr.innerHTML+='<th class="session-col"><div class="session-badge"><div class="s-date">'+fmtDate(s.startTime).split(' ').slice(0,2).join(' ')+'</div><div style="width:28px;height:3px;background:'+palette[i]+';border-radius:2px;margin:3px auto"></div><div style="font-size:9px">'+(s.matchScore?'<span style="color:'+(won?'var(--accent)':'var(--red)')+'">'+s.matchScore+'</span>':'<span style="color:var(--text3)">'+typeLabel(s.sessionType).slice(0,4)+'</span>')+'</div></div></th>';
     });
-    thead.appendChild(hr); tbl.appendChild(thead);
-
+    thead.appendChild(hr);tbl.appendChild(thead);
     var tbody=mkEl('tbody','');
     rows.forEach(function(row){
-      if(row.section){
-        var sr=mkEl('tr','cmp-section-hdr');
-        sr.innerHTML='<td colspan="'+(chosen.length+1)+'">'+row.section+'</td>';
-        tbody.appendChild(sr); return;
-      }
-      var vals=chosen.map(function(s){
-        if(row.compute) return row.compute(s);
-        return nv(s,row.key);
-      });
-      var bw=bestWorst(vals, row.higherIsBetter!==false);
-      var tr=mkEl('tr','');
-      tr.innerHTML='<td class="cmp-metric">'+row.label+'</td>';
+      if(row.section){var sr=mkEl('tr','cmp-section-hdr');sr.innerHTML='<td colspan="'+(chosen.length+1)+'">'+row.section+'</td>';tbody.appendChild(sr);return;}
+      var vals=chosen.map(function(s){return row.compute?row.compute(s):nv(s,row.key);});
+      var bw=bestWorst(vals,row.higherIsBetter!==false);
+      var tr=mkEl('tr','');tr.innerHTML='<td class="cmp-metric">'+row.label+'</td>';
       vals.forEach(function(v,i){
         var display=v!=null?(row.format?row.format(v):v+(row.suffix||'')):'--';
-        var cls='cmp-val';
-        if(v==null) cls+=' na';
-        else if(i===bw.best) cls+=' best';
-        else if(i===bw.worst) cls+=' worst';
+        var cls='cmp-val';if(v==null)cls+=' na';else if(i===bw.best)cls+=' best';else if(i===bw.worst)cls+=' worst';
         tr.innerHTML+='<td class="'+cls+'">'+display+'</td>';
       });
       tbody.appendChild(tr);
     });
-    tbl.appendChild(tbody);
-    cw.appendChild(tbl); card.appendChild(cw);
-    return card;
+    tbl.appendChild(tbody);cw.appendChild(tbl);card.appendChild(cw);return card;
   }
 
-  // Shot power bar chart comparison
-  function makeShotBars(title, shotGroups) {
-    var card=mkEl('div','card mb-5');
-    card.innerHTML='<div class="card-title">'+title+'</div>';
+  function makeBars(title,groups){
+    var card=mkEl('div','card mb-5');card.innerHTML='<div class="card-title">'+title+'</div>';
     var grid=mkEl('div','bar-compare-grid');
-    shotGroups.forEach(function(sg){
+    groups.forEach(function(sg){
       var maxVal=Math.max.apply(null,chosen.map(function(s){return nv(s,sg.key)||0;}).concat([1]));
-      var grp=mkEl('div','bar-group');
-      grp.innerHTML='<div class="bar-group-label">'+sg.label+'</div>';
+      var grp=mkEl('div','bar-group');grp.innerHTML='<div class="bar-group-label">'+sg.label+'</div>';
       chosen.forEach(function(s,i){
         var v=nv(s,sg.key);
         var row=mkEl('div','bar-row-cmp');
-        var shortDate=fmtDate(s.startTime).split(' ').slice(0,2).join(' ');
-        row.innerHTML='<div class="bar-session-label" style="color:'+palette[i]+'">'+shortDate+'</div>'
-          +'<div class="bar-track"><div class="bar-fill-cmp" style="width:'+((v!=null?v:0)/maxVal*100)+'%;background:'+palette[i]+'"></div></div>'
-          +'<div class="bar-val-cmp">'+(v!=null?v+(sg.suffix||''):'--')+'</div>';
+        var lbl=fmtDate(s.startTime).split(' ').slice(0,2).join(' ');
+        row.innerHTML='<div class="bar-session-label" style="color:'+palette[i]+'">'+lbl+'</div><div class="bar-track"><div class="bar-fill-cmp" style="width:'+((v!=null?v:0)/maxVal*100)+'%;background:'+palette[i]+'"></div></div><div class="bar-val-cmp">'+(v!=null?v+(sg.suffix||''):'--')+'</div>';
         grp.appendChild(row);
       });
       grid.appendChild(grp);
     });
-    card.appendChild(grid);
-    return card;
+    card.appendChild(grid);return card;
   }
 
-  // ── Fitness table ──
+  function frac(a,b){return(a!=null&&b!=null&&b>0)?a+'/'+b:'--';}
+  var hasMatch=chosen.some(function(s){return s.pointsPlayed>0;});
+
   wrap.appendChild(makeTable('Fitness & Physical',[
     {label:'Duration',key:'duration',higherIsBetter:true,format:fmtDur},
-    {label:'Avg Heart Rate',key:'avgHR',higherIsBetter:false,suffix:' bpm'},
-    {label:'Max Heart Rate',key:'maxHR',higherIsBetter:false,suffix:' bpm'},
-    {label:'Calories',key:'calories',higherIsBetter:true,suffix:' kcal'},
-    {label:'Distance',key:'distance',higherIsBetter:true,suffix:' km'},
-    {label:'Temperature',key:'temperature',suffix:'°C'},
+    {label:'Avg HR',key:'avgHR',higherIsBetter:false,suffix:' bpm'},
+    {label:'Max HR',key:'maxHR',higherIsBetter:false,suffix:' bpm'},
+    {label:'Calories',key:'calories',suffix:' kcal'},
+    {label:'Distance',key:'distance',suffix:' km'},
+    {label:'How I Felt',compute:function(s){return s.feel?+s.feel:null;},higherIsBetter:true,format:function(v){return['','Bad','Off','OK','Good','Peak'][v]||v;}},
     {label:'Training Effect',key:'trainingEffect'}
   ]));
 
-  // ── Shot count bars ──
-  wrap.appendChild(makeShotBars('Shot Counts',[
+  wrap.appendChild(makeBars('Shot Counts',[
     {label:'Total Shots',key:'totalCount'},
     {label:'Forehand',key:'forehandCount'},
     {label:'Backhand',key:'backhandCount'},
@@ -821,78 +1057,138 @@ function renderCompare() {
     {label:'BH Slice',key:'bSliceCount'}
   ]));
 
-  // ── Shot power bars ──
-  wrap.appendChild(makeShotBars('Shot Power — Avg %',[
+  wrap.appendChild(makeBars('Shot Power Avg %',[
+    {label:'Forehand Power',key:'forehandPowerAvg',suffix:'%'},
+    {label:'Backhand Power',key:'backhandPowerAvg',suffix:'%'},
+    {label:'Serve Power',key:'servePowerAvg',suffix:'%'}
+  ]));
+
+  wrap.appendChild(makeTable('Shot Analysis',[
+    {label:'Total Shots',key:'totalCount',higherIsBetter:true},
+    {label:'FH/BH Ratio',compute:function(s){var f=nv(s,'forehandCount'),b=nv(s,'backhandCount');return(f!=null&&b!=null&&b>0)?Math.round((f/b)*10)/10:null;},higherIsBetter:false,format:function(v){return v+'x';}},
+    {label:'Shot Efficiency (W:UE)',compute:function(s){return shotEff(s);},higherIsBetter:true},
     {label:'Forehand Power Avg',key:'forehandPowerAvg',suffix:'%'},
     {label:'Backhand Power Avg',key:'backhandPowerAvg',suffix:'%'},
     {label:'Serve Power Avg',key:'servePowerAvg',suffix:'%'}
   ]));
 
-  wrap.appendChild(makeShotBars('Shot Power — Max %',[
-    {label:'Forehand Power Max',key:'forehandPowerMax',suffix:'%'},
-    {label:'Backhand Power Max',key:'backhandPowerMax',suffix:'%'},
-    {label:'Serve Power Max',key:'servePowerMax',suffix:'%'}
-  ]));
-
-  // ── Shot ratio table ──
-  var hasAnyMatch=chosen.some(function(s){return s.pointsPlayed>0;});
-
-  wrap.appendChild(makeTable('Shot Distribution',[
-    {label:'Total Shots',key:'totalCount',higherIsBetter:true},
-    {label:'FH / BH Ratio',compute:function(s){ var f=nv(s,'forehandCount'),b=nv(s,'backhandCount'); return(f!=null&&b!=null&&b>0)?Math.round((f/b)*10)/10:null; },higherIsBetter:false,format:function(v){return v+'x';}},
-    {label:'Forehand Count',key:'forehandCount',higherIsBetter:true},
-    {label:'Backhand Count',key:'backhandCount',higherIsBetter:true},
-    {label:'Serve Count',key:'serveCount'},
-    {label:'BH Slice Count',key:'bSliceCount'}
-  ]));
-
-  // ── Match stats table (only if at least one session has match data) ──
-  if(hasAnyMatch){
+  if(hasMatch){
     wrap.appendChild(makeTable('Match Statistics',[
       {label:'Points Played',key:'pointsPlayed'},
-      {label:'Points Won',key:'pointsWon',higherIsBetter:true},
-      {label:'Win %',compute:function(s){ var w=nv(s,'pointsWon'),t=nv(s,'pointsPlayed'); return(w!=null&&t!=null&&t>0)?Math.round(w/t*100):null; },higherIsBetter:true,suffix:'%'},
+      {label:'Win %',compute:function(s){var w=nv(s,'pointsWon'),t=nv(s,'pointsPlayed');return(w!=null&&t!=null&&t>0)?Math.round(w/t*100):null;},higherIsBetter:true,suffix:'%'},
       {label:'Winners',key:'winners',higherIsBetter:true},
       {label:'Aces',key:'aces',higherIsBetter:true},
       {label:'Unforced Errors',key:'unforcedErrors',higherIsBetter:false},
-      {label:'Forced Errors',key:'forcedErrors',higherIsBetter:false},
       {label:'Double Faults',key:'doubleFaults',higherIsBetter:false},
       {label:'Opponent Errors',key:'opponentErrors',higherIsBetter:true},
       {label:'BP Won',compute:function(s){return frac(s.breakpointsWon,s.breakpointsWonOf);},higherIsBetter:null},
-      {label:'BP Conv %',compute:function(s){ var w=nv(s,'breakpointsWon'),t=nv(s,'breakpointsWonOf'); return(w!=null&&t!=null&&t>0)?Math.round(w/t*100):null; },higherIsBetter:true,suffix:'%'},
-      {label:'BP Saved',compute:function(s){return frac(s.breakpointsSaved,s.breakpointsSavedOf);},higherIsBetter:null},
-      {label:'Service Games Won',compute:function(s){return frac(s.serviceGamesWon,s.serviceGamesWonOf);},higherIsBetter:null},
-      {label:'Srv Games Win %',compute:function(s){ var w=nv(s,'serviceGamesWon'),t=nv(s,'serviceGamesWonOf'); return(w!=null&&t!=null&&t>0)?Math.round(w/t*100):null; },higherIsBetter:true,suffix:'%'}
+      {label:'BP Conv %',compute:function(s){var w=nv(s,'breakpointsWon'),t=nv(s,'breakpointsWonOf');return(w!=null&&t!=null&&t>0)?Math.round(w/t*100):null;},higherIsBetter:true,suffix:'%'},
+      {label:'Service Games Win %',compute:function(s){var w=nv(s,'serviceGamesWon'),t=nv(s,'serviceGamesWonOf');return(w!=null&&t!=null&&t>0)?Math.round(w/t*100):null;},higherIsBetter:true,suffix:'%'}
     ]));
   }
-
   return wrap;
 }
 
-function renderOpponents() {
-  var wrap=mkEl('div','');
-  var hdr=mkEl('div','page-header','<div><div class="page-title">Opponents</div><div class="page-sub">Track your regular opponents</div></div>');
-  var btn=mkEl('button','btn btn-primary','+ Add Opponent'); btn.onclick=function(e){openOppModal(e);}; hdr.appendChild(btn); wrap.appendChild(hdr);
-  if (!state.opponents.length) {
-    var empty=mkEl('div','empty','<div class="empty-icon">&#128100;</div><div class="empty-title">No opponents yet</div><div class="empty-sub">Add players you regularly compete or practise with.</div>');
-    wrap.appendChild(empty); return wrap;
-  }
-  var grid=mkEl('div','opp-grid');
-  state.opponents.forEach(function(opp){
-    var oppS=state.sessions.filter(function(s){return s.opponentId===opp.id;});
-    var wins=oppS.filter(function(s){return s.whoWon&&s.whoWon.indexOf('WON')!==-1;}).length;
-    var losses=oppS.filter(function(s){return s.whoWon&&s.whoWon.indexOf('WON')===-1;}).length;
-    var card=mkEl('div','opp-card');
-    card.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="opp-name">'+opp.name+'</div><button class="btn btn-danger btn-sm" data-id="'+opp.id+'">&times;</button></div>'+(opp.level?'<div class="tag" style="margin:6px 0 12px">'+opp.level+'</div>':'<div style="margin-bottom:12px"></div>')+'<div class="opp-stats"><div><div class="opp-stat-n">'+oppS.length+'</div><div class="opp-stat-l">Sessions</div></div><div><div class="opp-stat-n" style="color:var(--accent)">'+wins+'</div><div class="opp-stat-l">Wins</div></div><div><div class="opp-stat-n" style="color:var(--red)">'+losses+'</div><div class="opp-stat-l">Losses</div></div></div>'+(opp.notes?'<div style="font-size:12px;color:var(--text3);border-top:1px solid var(--border);padding-top:10px">'+opp.notes+'</div>':'');
-    card.querySelector('button').onclick=function(e){e.stopPropagation();var id=this.dataset.id;if(confirm('Delete opponent?')){state.opponents=state.opponents.filter(function(o){return o.id!==id;});DB.saveOpponents(state.opponents);renderPage();}};
-    grid.appendChild(card);
-  });
-  wrap.appendChild(grid); return wrap;
+// ── UPLOAD MODAL ──────────────────────────────────────────────────────────────
+function openUploadModal(){
+  state.parsedFit=null;state.selectedType='';state.selectedFeel='';state.selectedTemp='';state.selectedWind='';
+  document.getElementById('uploadZone').classList.remove('hidden');
+  document.getElementById('parsedPreview').classList.add('hidden');
+  document.getElementById('uploadError').classList.add('hidden');
+  document.getElementById('aiAnalysisBox').classList.add('hidden');
+  document.getElementById('surfaceSelect').value='';
+  document.getElementById('sessionNotes').value='';
+  document.getElementById('fitFileInput').value='';
+  document.querySelectorAll('.sel-opt').forEach(function(t){t.className='sel-opt';});
+  var sel=document.getElementById('opponentSelect');
+  sel.innerHTML='<option value="">None</option>';
+  state.opponents.forEach(function(o){sel.innerHTML+='<option value="'+o.id+'">'+o.name+'</option>';});
+  document.getElementById('uploadModal').classList.remove('hidden');
+}
+function closeUploadModal(){document.getElementById('uploadModal').classList.add('hidden');}
+
+// Selector button logic
+document.querySelectorAll('.sel-opt').forEach(function(opt){
+  opt.onclick=function(){
+    var group=opt.dataset.group,val=opt.dataset.val;
+    document.querySelectorAll('.sel-opt[data-group="'+group+'"]').forEach(function(o){o.className='sel-opt';});
+    var clsMap={type:{competitive:'active-comp',friendly:'active-friendly',casual:'active-casual'},feel:'active-feel',temp:'active-weather',wind:'active-wind'};
+    var cls=typeof clsMap[group]==='object'?clsMap[group][val]:clsMap[group];
+    opt.classList.add(cls||'active-feel');
+    if(group==='type')state.selectedType=val;
+    else if(group==='feel')state.selectedFeel=val;
+    else if(group==='temp')state.selectedTemp=val;
+    else if(group==='wind')state.selectedWind=val;
+  };
+});
+
+document.getElementById('btnCancelUpload').onclick=closeUploadModal;
+document.getElementById('uploadModal').addEventListener('mousedown',function(e){if(e.target===e.currentTarget)closeUploadModal();});
+
+document.getElementById('fitFileInput').onchange=function(e){if(e.target.files[0])handleFitFile(e.target.files[0]);};
+var uz=document.getElementById('uploadZone');
+uz.ondragover=function(e){e.preventDefault();uz.classList.add('drag');};
+uz.ondragleave=function(){uz.classList.remove('drag');};
+uz.ondrop=function(e){e.preventDefault();uz.classList.remove('drag');if(e.dataTransfer.files[0])handleFitFile(e.dataTransfer.files[0]);};
+
+async function handleFitFile(file){
+  var errEl=document.getElementById('uploadError');errEl.classList.add('hidden');
+  try{
+    var buffer=await file.arrayBuffer();
+    var bytes=new Uint8Array(buffer);
+    if(bytes[0]===0x50&&bytes[1]===0x4B){
+      var zip=await JSZip.loadAsync(bytes);
+      var fitEntry=null;
+      zip.forEach(function(path,entry){if(!fitEntry&&path.toLowerCase().indexOf('.fit')!==-1)fitEntry=entry;});
+      if(!fitEntry){errEl.innerHTML='No .FIT file found in zip.';errEl.className='alert alert-warn';errEl.classList.remove('hidden');return;}
+      buffer=await fitEntry.async('arraybuffer');
+    }
+    var stats=parseFitFile(buffer);
+    if(!stats||!stats.startTime){errEl.innerHTML='Could not parse FIT file. Use "Export File" from Garmin Connect.';errEl.className='alert alert-warn';errEl.classList.remove('hidden');return;}
+    state.parsedFit=stats;
+    document.getElementById('uploadZone').classList.add('hidden');
+    var won=stats.whoWon&&stats.whoWon.indexOf('WON')!==-1;
+    var prev=document.getElementById('parsedPreview');
+    prev.innerHTML='<div class="parsed-label">&#10003; Parsed &mdash; '+file.name+'</div><div class="parsed-grid"><div class="parsed-item"><strong>'+fmtDate(stats.startTime)+'</strong>Date</div><div class="parsed-item"><strong>'+fmtDur(stats.duration)+'</strong>Duration</div><div class="parsed-item"><strong>'+(stats.totalCount!=null?stats.totalCount:'--')+'</strong>Total Shots</div><div class="parsed-item"><strong>'+(stats.avgHR||'--')+' bpm</strong>Avg HR</div><div class="parsed-item"><strong>'+(stats.calories||'--')+' kcal</strong>Calories</div>'+(stats.matchScore?'<div class="parsed-item"><strong style="color:'+(won?'var(--accent)':'var(--red)')+'">'+stats.matchScore+' &middot; '+(won?'W':'L')+'</strong>Score</div>':'')+'</div>';
+    prev.classList.remove('hidden');
+
+    // Trigger AI analysis
+    var aiBox=document.getElementById('aiAnalysisBox');
+    var aiContent=document.getElementById('aiAnalysisContent');
+    aiBox.classList.remove('hidden');
+    aiContent.innerHTML='<div class="ai-loading"><div class="ai-spinner"></div><span>Analysing your session...</span></div>';
+    runAIAnalysis(stats,state.sessions,state.opponents).then(function(text){
+      state.parsedFit._aiAnalysis=text;
+      aiContent.className='ai-body';
+      aiContent.innerHTML=text.replace(/\n/g,'<br>').replace(/•/g,'&bull;');
+    });
+  }catch(e){errEl.innerHTML='Error: '+e.message;errEl.className='alert alert-warn';errEl.classList.remove('hidden');}
 }
 
-// Opponent modal
+document.getElementById('btnSaveSession').onclick=function(){
+  var errEl=document.getElementById('uploadError');
+  if(!state.parsedFit){errEl.innerHTML='Please upload a FIT file first.';errEl.className='alert alert-warn';errEl.classList.remove('hidden');return;}
+  if(!state.selectedType){errEl.innerHTML='Please select a session type.';errEl.className='alert alert-warn';errEl.classList.remove('hidden');return;}
+  var surface=document.getElementById('surfaceSelect').value;
+  if(!surface){errEl.innerHTML='Please select a surface.';errEl.className='alert alert-warn';errEl.classList.remove('hidden');return;}
+  if(!state.selectedFeel){errEl.innerHTML='Please select how you felt.';errEl.className='alert alert-warn';errEl.classList.remove('hidden');return;}
+  var sess=Object.assign({
+    id:Date.now().toString(),importedAt:new Date().toISOString(),
+    sessionType:state.selectedType,opponentId:document.getElementById('opponentSelect').value||null,
+    surface:surface,notes:document.getElementById('sessionNotes').value,
+    feel:state.selectedFeel?+state.selectedFeel:null,
+    weather:state.selectedTemp||null,wind:state.selectedWind||null,
+    aiAnalysis:state.parsedFit._aiAnalysis||null
+  },state.parsedFit);
+  state.sessions=[sess].concat(state.sessions);
+  DB.saveSessions(state.sessions);
+  closeUploadModal();
+  setPage('sessions',sess.id);
+};
+
+// ── OPPONENT MODAL ────────────────────────────────────────────────────────────
 function openOppModal(e){
-  if(e) e.stopPropagation();
+  if(e)e.stopPropagation();
   document.getElementById('oppName').value='';
   document.getElementById('oppLevel').value='';
   document.getElementById('oppNotes').value='';
@@ -902,102 +1198,18 @@ function openOppModal(e){
 document.getElementById('btnCancelOpp').onclick=function(){document.getElementById('oppModal').classList.add('hidden');};
 document.getElementById('oppModal').addEventListener('mousedown',function(e){if(e.target===e.currentTarget)document.getElementById('oppModal').classList.add('hidden');});
 document.getElementById('btnSaveOpp').onclick=function(){
-  var name=document.getElementById('oppName').value.trim();
-  if(!name)return;
+  var name=document.getElementById('oppName').value.trim();if(!name)return;
   var opp={id:Date.now().toString(),name:name,level:document.getElementById('oppLevel').value,notes:document.getElementById('oppNotes').value,createdAt:new Date().toISOString()};
-  state.opponents=[opp].concat(state.opponents);
-  DB.saveOpponents(state.opponents);
-  document.getElementById('oppModal').classList.add('hidden');
-  setPage('opponents');
+  state.opponents=[opp].concat(state.opponents);DB.saveOpponents(state.opponents);
+  document.getElementById('oppModal').classList.add('hidden');setPage('opponents');
 };
 document.getElementById('oppName').onkeydown=function(e){if(e.key==='Enter')document.getElementById('btnSaveOpp').click();};
 
-// Upload modal
-function openUploadModal() {
-  state.parsedFit=null; state.selectedType='';
-  document.getElementById('uploadZone').classList.remove('hidden');
-  document.getElementById('parsedPreview').classList.add('hidden');
-  document.getElementById('uploadError').classList.add('hidden');
-  document.getElementById('surfaceSelect').value='';
-  document.getElementById('sessionNotes').value='';
-  document.getElementById('fitFileInput').value='';
-  document.querySelectorAll('.type-opt').forEach(function(t){t.className='type-opt';});
-  var sel=document.getElementById('opponentSelect');
-  sel.innerHTML='<option value="">None</option>';
-  state.opponents.forEach(function(o){sel.innerHTML+='<option value="'+o.id+'">'+o.name+'</option>';});
-  document.getElementById('uploadModal').classList.remove('hidden');
-}
-function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
-
-document.getElementById('btnCancelUpload').onclick=closeUploadModal;
-document.getElementById('uploadModal').addEventListener('click',function(e){if(e.target===e.currentTarget)closeUploadModal();});
-
-async function handleFitFile(file) {
-  var errEl=document.getElementById('uploadError');
-  errEl.classList.add('hidden');
-  try {
-    var buffer;
-    var bytes=new Uint8Array(await file.arrayBuffer());
-
-    // ZIP file (PK header) — use JSZip to properly decompress
-    if (bytes[0]===0x50&&bytes[1]===0x4B) {
-      var zip=await JSZip.loadAsync(bytes);
-      var fitEntry=null;
-      zip.forEach(function(path,entry){
-        if (!fitEntry&&(path.toLowerCase().endsWith('.fit')||path.toLowerCase().indexOf('.fit')!==-1)) fitEntry=entry;
-      });
-      if (!fitEntry) { errEl.innerHTML='No .FIT file found inside the zip.'; errEl.className='alert alert-warn'; errEl.classList.remove('hidden'); return; }
-      buffer=await fitEntry.async('arraybuffer');
-    } else {
-      buffer=bytes.buffer;
-    }
-
-    var stats=parseFitFile(buffer);
-    if (!stats||!stats.startTime) { errEl.innerHTML='Could not parse FIT file. Make sure you used "Export File" from Garmin Connect (not TCX or GPX).'; errEl.className='alert alert-warn'; errEl.classList.remove('hidden'); return; }
-    state.parsedFit=stats;
-    document.getElementById('uploadZone').classList.add('hidden');
-    var won=stats.whoWon&&stats.whoWon.indexOf('WON')!==-1;
-    var prev=document.getElementById('parsedPreview');
-    prev.innerHTML='<div class="parsed-label">&#10003; Parsed &mdash; '+file.name+'</div><div class="parsed-grid"><div class="parsed-item"><strong>'+fmtDate(stats.startTime)+'</strong>Date</div><div class="parsed-item"><strong>'+fmtDur(stats.duration)+'</strong>Duration</div><div class="parsed-item"><strong>'+(stats.totalCount!=null?stats.totalCount:'--')+'</strong>Total Shots</div><div class="parsed-item"><strong>'+(stats.avgHR||'--')+' bpm</strong>Avg HR</div><div class="parsed-item"><strong>'+(stats.calories||'--')+' kcal</strong>Calories</div>'+(stats.matchScore?'<div class="parsed-item"><strong style="color:'+(won?'var(--accent)':'var(--red)')+'">'+stats.matchScore+' &middot; '+(won?'W':'L')+'</strong>Score</div>':'')+'</div>';
-    prev.classList.remove('hidden');
-  } catch(e) { errEl.innerHTML='Error: '+e.message; errEl.className='alert alert-warn'; errEl.classList.remove('hidden'); }
-}
-
-document.getElementById('fitFileInput').onchange=function(e){if(e.target.files[0])handleFitFile(e.target.files[0]);};
-var uz=document.getElementById('uploadZone');
-uz.ondragover=function(e){e.preventDefault();uz.classList.add('drag');};
-uz.ondragleave=function(){uz.classList.remove('drag');};
-uz.ondrop=function(e){e.preventDefault();uz.classList.remove('drag');if(e.dataTransfer.files[0])handleFitFile(e.dataTransfer.files[0]);};
-
-document.querySelectorAll('.type-opt').forEach(function(opt){
-  opt.onclick=function(){
-    state.selectedType=opt.dataset.type;
-    var map={competitive:'sel-comp',friendly:'sel-friendly',casual:'sel-casual'};
-    document.querySelectorAll('.type-opt').forEach(function(o){o.className='type-opt';});
-    opt.classList.add(map[opt.dataset.type]);
-  };
-});
-
-document.getElementById('btnSaveSession').onclick=function(){
-  var errEl=document.getElementById('uploadError');
-  if (!state.parsedFit){errEl.innerHTML='Please upload a FIT file first.';errEl.className='alert alert-warn';errEl.classList.remove('hidden');return;}
-  if (!state.selectedType){errEl.innerHTML='Please select a session type.';errEl.className='alert alert-warn';errEl.classList.remove('hidden');return;}
-  var surface=document.getElementById('surfaceSelect').value;
-  if (!surface){errEl.innerHTML='Please select a surface.';errEl.className='alert alert-warn';errEl.classList.remove('hidden');return;}
-  var sess=Object.assign({id:Date.now().toString(),importedAt:new Date().toISOString(),sessionType:state.selectedType,opponentId:document.getElementById('opponentSelect').value||null,surface:surface,notes:document.getElementById('sessionNotes').value},state.parsedFit);
-  state.sessions=[sess].concat(state.sessions);
-  DB.saveSessions(state.sessions);
-  closeUploadModal();
-  setPage('sessions',sess.id);
-};
-
-// Nav
-document.querySelectorAll('.nav-item[data-page]').forEach(function(n){
-  n.onclick=function(){setPage(n.dataset.page,null);};
-});
+// ── NAV ───────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-item[data-page]').forEach(function(n){n.onclick=function(){setPage(n.dataset.page,null);};});
 document.getElementById('btnImport').onclick=openUploadModal;
 
-// Init
+// ── INIT ──────────────────────────────────────────────────────────────────────
 renderPage();
 
 })();
