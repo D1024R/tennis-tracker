@@ -794,11 +794,7 @@ function renderDetail(id){
       mergeBar.appendChild(mergeBtn);wrap.appendChild(mergeBar);
     }
 
-  if(s.notes){var n=mkEl('div','card');n.innerHTML='<div class="card-title">Notes</div><div style="font-size:13px;color:var(--text2);line-height:1.6">'+s.notes+'</div>';wrap.appendChild(n);}
-  return wrap;
-}
-
-// ── TRENDS ────────────────────────────────────────────────────────────────────
+    if(isMerged){
       var ml=s._mergedLaps,mwon=ml.whoWon&&ml.whoWon.indexOf('WON')!==-1;
       var ms=mkEl('div','mb-5');
       var hd=mkEl('div','');hd.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)';
