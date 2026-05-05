@@ -617,14 +617,19 @@ function setPage(page,viewingSession){state.page=page;if(viewingSession!==undefi
 function renderPage(){
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===state.page);});
   var main=document.getElementById('mainContent');main.innerHTML='';
-  var content;
-  if(state.page==='dashboard')content=renderDashboard();
-  else if(state.page==='sessions')content=state.viewingSession?renderDetail(state.viewingSession):renderSessions();
-  else if(state.page==='trends')content=renderTrends();
-  else if(state.page==='serve')content=renderServe();
-  else if(state.page==='opponents')content=renderOpponents();
-  else if(state.page==='compare')content=renderCompare();
-  if(content)main.appendChild(content);
+  try{
+    var content;
+    if(state.page==='dashboard')content=renderDashboard();
+    else if(state.page==='sessions')content=state.viewingSession?renderDetail(state.viewingSession):renderSessions();
+    else if(state.page==='trends')content=renderTrends();
+    else if(state.page==='serve')content=renderServe();
+    else if(state.page==='opponents')content=renderOpponents();
+    else if(state.page==='compare')content=renderCompare();
+    if(content)main.appendChild(content);
+  }catch(err){
+    main.innerHTML='<div style="padding:40px;color:var(--red);font-family:DM Mono,monospace;font-size:12px"><div style="font-size:16px;margin-bottom:12px">&#9888; Render error</div><div>'+err.message+'</div><div style="margin-top:12px;color:var(--text3)">'+err.stack+'</div></div>';
+    console.error('renderPage error:',err);
+  }
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
