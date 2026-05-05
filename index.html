@@ -635,13 +635,13 @@ function renderPage(){
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 function renderDashboard(){
   var s=state.sessions,wrap=mkEl('div','');
-  var withMatch=s.filter(function(x){return x.pointsPlayed>0;});
-  var wins=s.filter(function(x){return x.whoWon&&x.whoWon.indexOf('WON')!==-1;}).length;
-  var losses=s.filter(function(x){return x.whoWon&&x.whoWon.indexOf('WON')===-1&&x.whoWon.trim()!=='';}).length;
-  var totalShots=s.reduce(function(a,x){return a+(x.totalCount||0);},0);
+  var withMatch=s.filter(function(x){return x&&x.pointsPlayed>0;});
+  var wins=s.filter(function(x){return x&&x.whoWon&&x.whoWon.indexOf('WON')!==-1;}).length;
+  var losses=s.filter(function(x){return x&&x.whoWon&&x.whoWon.indexOf('WON')===-1&&x.whoWon.trim()!=='';}).length;
+  var totalShots=s.reduce(function(a,x){return a+((x&&x.totalCount)||0);},0);
   var avgE=withMatch.length?Math.round(withMatch.reduce(function(a,x){return a+(x.unforcedErrors||0);},0)/withMatch.length):null;
   var avgW=withMatch.length?Math.round(withMatch.reduce(function(a,x){return a+(x.winners||0);},0)/withMatch.length):null;
-  var allEff=s.filter(function(x){return shotEff(x)!=null;});
+  var allEff=s.filter(function(x){return x&&shotEff(x)!=null;});
   var avgEff=allEff.length?Math.round(allEff.reduce(function(a,x){return a+shotEff(x);},0)/allEff.length*100)/100:null;
 
   // Days since last session
@@ -1222,7 +1222,9 @@ document.querySelectorAll('.nav-item[data-page]').forEach(function(n){n.onclick=
 document.getElementById('btnImport').onclick=openUploadModal;
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-renderPage();
+try { renderPage(); } catch(err) {
+  document.getElementById('mainContent').innerHTML='<div style="padding:40px;color:var(--red);font-family:DM Mono,monospace;font-size:12px"><div style="font-size:16px;margin-bottom:12px">&#9888; Init error</div><div>'+err.message+'</div><div style="margin-top:12px;color:var(--text3)">'+err.stack+'</div></div>';
+}
 
 })();
 </script>
